@@ -101,46 +101,67 @@ class StartSida extends StatelessWidget {
             children: [
               // Idag-ruta med starta session-knapp
               Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF8CA1DE),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: "📅 Idag: $idagDatum\n",
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
-                            TextSpan(
-                              text: "Bok: Bamse och tjuvjakten\nLästid: 10 minuter\nSe video: Hur man läser interaktivt",
-                              style: const TextStyle(fontSize: 14, color: Colors.white),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF8CA1DE),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => const DagensSessionSida()));
-                      },
-                      child: const Text("Starta session"),
-                    ),
-                  ],
-                ),
+  decoration: BoxDecoration(
+    color: const Color(0xFF8CA1DE),
+    borderRadius: BorderRadius.circular(16),
+  ),
+  padding: const EdgeInsets.all(16),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      // Textdel (tar så mycket plats som möjligt)
+      Expanded(
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: "📅 Idag: $idagDatum\n",
+                style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
               ),
+              TextSpan(
+                text:
+                    "Bok: Bamse och tjuvjakten\nLästid: 10 minuter\nVideo: Att läsa interaktivt",
+                style: const TextStyle(fontSize: 14, color: Colors.white),
+              ),
+            ],
+          ),
+        ),
+      ),
+
+      const SizedBox(width: 12),
+
+      // 🔽 Responsiv knappbredd
+      SizedBox(
+        width: MediaQuery.of(context).size.width * 0.2, // 20% av skärmens bredd
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: const Color(0xFF8CA1DE),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 12),
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const DagensSessionSida()),
+            );
+          },
+          child: const Text(
+            "Starta\nsession",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ),
+    ],
+  ),
+),
 
               const SizedBox(height: 24),
 
