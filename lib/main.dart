@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:provider/provider.dart';
+import 'timer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('sv_SE', null); // Initiera svenska locale
-  runApp(const DialoglasningsApp());
+  await initializeDateFormatting('sv_SE', null);
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => TimerProvider(),
+      child: const DialoglasningsApp(),
+    ),
+  );
 }
 
 class DialoglasningsApp extends StatelessWidget {
@@ -22,6 +29,9 @@ class DialoglasningsApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
       ),
       home: const HuvudNavigator(),
+      routes: {
+        '/betyg': (context) => const BetygSida(),
+      },
     );
   }
 }
@@ -124,7 +134,7 @@ class StartSida extends StatelessWidget {
               ),
               TextSpan(
                 text:
-                    "Bok: Bamse och tjuvjakten\nLästid: 10 minuter\nVideo: Att läsa interaktivt",
+                    "Bok: Bamse och tjuvjakten\nLästid: 10 minuter\nVideo: Fråga och utvärdera",
                 style: const TextStyle(fontSize: 14, color: Colors.white),
               ),
             ],
@@ -337,19 +347,6 @@ class InstallningarSida extends StatelessWidget {
         foregroundColor: Colors.white,
       ),
       body: const Center(child: Text("Profil och appinställningar här.")),
-    );
-  }
-}
-
-// ÖVRIGA UNDERSIDOR
-class TimerSida extends StatelessWidget {
-  const TimerSida({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Timer")),
-      body: const Center(child: Text("Timer-funktion här.")),
     );
   }
 }
