@@ -72,4 +72,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'fir-417a1.firebasestorage.app',
     iosBundleId: 'com.example.template',
   );
+
 }

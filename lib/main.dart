@@ -1,9 +1,38 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'pages/login.dart';
+import 'pages/signup.dart';
 import 'firebase_options.dart';
 
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        // If user is logged in
+        if (snapshot.hasData) {
+          return const DialoglasningsApp();
+        }
+
+        // If user is NOT logged in
+        return Signup();
+      },
+    );
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,7 +40,10 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
    );
   await initializeDateFormatting('sv_SE', null); // Initiera svenska locale
-  runApp(const DialoglasningsApp());
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: AuthGate(),
+  ));
 }
 
 class DialoglasningsApp extends StatelessWidget {
