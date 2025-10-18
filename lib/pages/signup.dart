@@ -18,12 +18,30 @@ class _SignupState extends State<Signup> {
 
   void _trySignup() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+
+final email = _emailController.text.trim();
+final password = _passwordController.text.trim();
+
+if (email.isEmpty || password.isEmpty) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('E-post och lösenord får inte vara tomma')),
+  );
+  return;
+}
+
+await FirebaseAuth.instance.createUserWithEmailAndPassword(
+  email: email,
+  password: password,
+);
+
+    debugPrint('DEBUG: Skapar konto med email="$email" och password="$password"');
+
     setState(() => _loading = true);
 
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        email: email,
+        password: password,
       );
       if (mounted) {
         Navigator.pop(context);
@@ -36,6 +54,10 @@ class _SignupState extends State<Signup> {
       if (e.code == 'email-already-in-use') message = 'E-post används redan';
       if (e.code == 'weak-password') message = 'Lösenordet är för svagt';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Okänt fel: $e')),
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -55,7 +77,11 @@ class _SignupState extends State<Signup> {
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'E-post', prefixIcon: Icon(Icons.email), border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'E-post',
+                    prefixIcon: Icon(Icons.email),
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Ange e-post';
                     if (!RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+").hasMatch(v)) return 'Ogiltig e-post';
@@ -85,7 +111,11 @@ class _SignupState extends State<Signup> {
                 TextFormField(
                   controller: _confirmController,
                   obscureText: _obscure,
-                  decoration: const InputDecoration(labelText: 'Bekräfta lösenord', prefixIcon: Icon(Icons.lock_outline), border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Bekräfta lösenord',
+                    prefixIcon: Icon(Icons.lock_outline),
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (v) {
                     if (v == null || v.isEmpty) return 'Bekräfta lösenord';
                     if (v != _passwordController.text) return 'Lösenorden matchar inte';

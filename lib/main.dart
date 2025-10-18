@@ -1,12 +1,58 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'pages/login.dart';
-import 'pages/signup.dart';
 import 'firebase_options.dart';
+import 'pages/signup.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('sv_SE', " ");//venska locale
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Dialogisk Läsning',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
+      ),
+      home: const InitFirebase(), // Säker initiering
+    );
+  }
+}
+
+class InitFirebase extends StatelessWidget {
+  const InitFirebase({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(child: Text('Fel vid Firebase-initiering: ${snapshot.error}')),
+          );
+        }
+        return const AuthGate();
+      },
+    );
+  }
+}
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -22,28 +68,20 @@ class AuthGate extends StatelessWidget {
           );
         }
 
-        // If user is logged in
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(child: Text('Fel i authStateChanges: ${snapshot.error}')),
+          );
+        }
+
         if (snapshot.hasData) {
           return const DialoglasningsApp();
         }
 
-        // If user is NOT logged in
-        return Signup();
+        return const Signup(); // Om ej inloggad
       },
     );
   }
-}
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-   );
-  await initializeDateFormatting('sv_SE', null); // Initiera svenska locale
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: AuthGate(),
-  ));
 }
 
 class DialoglasningsApp extends StatelessWidget {
