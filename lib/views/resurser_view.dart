@@ -22,6 +22,7 @@ class _ResurserSidaState extends State<ResurserSida> {
   }
   bool _infoExpanded = false;
   bool _videoExpanded = false;
+  bool _peerExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +48,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                 children: const [
                   Text(
                     "När språket dröjer",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 140, 161, 222)),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 255, 255, 254)),
                   ),
                   SizedBox(height: 6),
                   Text(
@@ -74,8 +75,11 @@ class _ResurserSidaState extends State<ResurserSida> {
                     onTap: () {
                       setState(() {
                         _infoExpanded = !_infoExpanded;
-                        // Stäng den andra om denna öppnas
-                        if (_infoExpanded) _videoExpanded = false;
+                        // Stäng de andra om denna öppnas
+                        if (_infoExpanded) {
+                          _videoExpanded = false;
+                          _peerExpanded = false;
+                        }
                       });
                     },
                     child: Container(
@@ -96,7 +100,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                               "Information och tips",
                               style: TextStyle(
                                 color: Color.fromARGB(255, 40, 77, 122),
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -123,7 +127,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                           Text(
                             "Språket utvecklas i sin egen takt",
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: Color.fromARGB(255, 40, 77, 122),
                             ),
@@ -141,7 +145,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                           Text(
                             "När börjar barn prata?",
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: Color.fromARGB(255, 230, 206, 74),
                             ),
@@ -167,18 +171,24 @@ class _ResurserSidaState extends State<ResurserSida> {
                           const SizedBox(height: 16),
                           //Rubrik
                           Text(
-                            "Tips",
+                            "Tips för att stötta ditt barns språkutveckling",
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: Color.fromARGB(255, 140, 161, 222),
                             ),
                           ),
                           const SizedBox(height: 4),
-                          //innehåll
-                          Text(
-                            "titititititiititititititititit",
-                            style: TextStyle(fontSize: 14)
+
+                          //Fyra tips som punktlista
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _bullet(" Prata och lyssna mycket\nKommunicera med ditt barn från första dagen. All kontakt, ord, gester eller gråt är språkträning. Visa intresse, svara, och bekräfta det barnet uttrycker."),
+                              _bullet(" Sätt ord på vardagen\nBerätta vad ni gör: “Nu tar vi på byxorna” eller “Titta, en röd bil!”. Använd korta, tydliga meningar och ge barnet tid att reagera."),
+                              _bullet(" Lek och ha roligt\nLeken är nyckeln till lärande. Följ barnets intresse, turas om, lyssna och sätt ord på det ni gör. Språket utvecklas bäst när det är roligt."),
+                              _bullet(" Fokusera på det positiva\nRätta inte barnets uttal hela tiden. Om barnet säger “tatt”, svara bekräftande: “Ja, en katt!”. På så sätt lär sig barnet utan att tappa lusten att prata."),
+                            ],
                           ),
                         ],
                       ),
@@ -188,6 +198,9 @@ class _ResurserSidaState extends State<ResurserSida> {
             ),
 
             const SizedBox(height: 16),
+
+
+
 
             //Informationsvideos sektionen -----------------------------------
             Card(
@@ -200,8 +213,11 @@ class _ResurserSidaState extends State<ResurserSida> {
                     onTap: () {
                       setState(() {
                         _videoExpanded = !_videoExpanded;
-                        // Stäng den andra om denna öppnas
-                        if (_videoExpanded) _infoExpanded = false;
+                        // Stäng de andra om denna öppnas
+                        if (_videoExpanded) {
+                          _infoExpanded = false;
+                          _peerExpanded = false;
+                        }
                       });
                     },
                     child: Container(
@@ -222,7 +238,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                               "Informationsvideos",
                               style: TextStyle(
                                 color: Color.fromARGB(255, 40, 77, 122),
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -262,6 +278,96 @@ class _ResurserSidaState extends State<ResurserSida> {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+
+            //PEER-sekvens sektion -----------------------------------
+            Card(
+              color: Colors.white,
+              elevation: 2,
+              child: Column(
+                children: [
+                  //Knapp för PEERsekvens -----------------------------------
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        _peerExpanded = !_peerExpanded;
+                        //Stäng de andra om denna öppnas
+                        if (_peerExpanded) {
+                          _infoExpanded = false;
+                          _videoExpanded = false;
+                        }
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 244, 245, 246),
+                        borderRadius: BorderRadius.vertical(
+                          top: const Radius.circular(12),
+                          bottom: Radius.circular(_peerExpanded ? 0 : 12),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.groups, color: Color.fromARGB(255, 40, 77, 122)),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Text(
+                              "PEER sekvens",
+                              style: TextStyle(
+                                color: Color.fromARGB(255, 40, 77, 122),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            _peerExpanded ? Icons.expand_less : Icons.expand_more,
+                            color: Color.fromARGB(255, 40, 77, 122),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  //Innehåll för PEER sekvens -----------------------------------
+                  if (_peerExpanded)
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 8),
+                          const Text(
+                            "Vad är PEER-sekvensen?",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 40, 77, 122),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            "PEER är en kort samtalssekvens mellan barnet och den vuxna. Den används när man delar en bok tillsammans, efter att ni redan har läst igenom boken minst en gång. Metoden kan användas på nästan varje sida i boken.",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            "Målet är enkelt: att låta barnet bli berättaren. Med tiden läser den vuxna mindre, och barnet pratar mer. Lyssna på barnet och följ det som barnet berättar.",
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(height: 12),
+                          _bullet("P - Prompt: Uppmuntra barnet till att säga något om boken eller sidan"),
+                          _bullet("E - Evaluate: Utvärdera barnets svar."),
+                          _bullet("E - Expand: Utveckla barnets svar genom att omformulera eller lägga till lite mer information."),
+                          _bullet("R - Repeat: Upprepa barnets svar, och låt barnet upprepa den utvecklade formen."),
+                          const SizedBox(height: 12),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -281,7 +387,7 @@ class _ResurserSidaState extends State<ResurserSida> {
             width: 100,
             height: 60,
             decoration: BoxDecoration(
-              color: const Color(0xFF8CA1DE).withOpacity(0.2),
+              color: const Color(0xFF8CA1DE),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
@@ -298,7 +404,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
