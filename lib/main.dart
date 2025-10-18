@@ -9,6 +9,9 @@ import 'pages/signup.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('sv_SE', " ");//venska locale
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -35,8 +38,10 @@ class InitFirebase extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
+    return FutureBuilder<FirebaseApp>(
+      future: Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform, // viktig för webben
+      ),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
@@ -45,9 +50,12 @@ class InitFirebase extends StatelessWidget {
         }
         if (snapshot.hasError) {
           return Scaffold(
-            body: Center(child: Text('Fel vid Firebase-initiering: ${snapshot.error}')),
+            body: Center(
+              child: Text('Fel vid Firebase-initiering: ${snapshot.error}'),
+            ),
           );
         }
+        // Firebase är initierat – gå vidare till AuthGate
         return const AuthGate();
       },
     );

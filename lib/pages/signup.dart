@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../main.dart'; // se till att sökvägen är korrekt till din main.dart
 
 class Signup extends StatefulWidget {
   const Signup({Key? key}) : super(key: key);
@@ -19,22 +20,15 @@ class _SignupState extends State<Signup> {
   void _trySignup() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-final email = _emailController.text.trim();
-final password = _passwordController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
 
-if (email.isEmpty || password.isEmpty) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('E-post och lösenord får inte vara tomma')),
-  );
-  return;
-}
-
-await FirebaseAuth.instance.createUserWithEmailAndPassword(
-  email: email,
-  password: password,
-);
-
-    debugPrint('DEBUG: Skapar konto med email="$email" och password="$password"');
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('E-post och lösenord får inte vara tomma')),
+      );
+      return;
+    }
 
     setState(() => _loading = true);
 
@@ -43,10 +37,12 @@ await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+
       if (mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Konto skapat — logga in!')),
+        // Navigera direkt till huvudnavigatorn
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const DialoglasningsApp()),
         );
       }
     } on FirebaseAuthException catch (e) {
@@ -66,7 +62,10 @@ await FirebaseAuth.instance.createUserWithEmailAndPassword(
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Skapa konto'), backgroundColor: const Color(0xFF8CA1DE)),
+      appBar: AppBar(
+        title: const Text('Skapa konto'),
+        backgroundColor: const Color(0xFF8CA1DE),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
