@@ -55,7 +55,7 @@ class InitFirebase extends StatelessWidget {
             ),
           );
         }
-        // Firebase är initierat – gå vidare till AuthGate
+        // Firebase initierat 
         return const AuthGate();
       },
     );

@@ -39,17 +39,42 @@ class _SignupState extends State<Signup> {
       );
 
       if (mounted) {
-        // Navigera direkt till huvudnavigatorn
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const DialoglasningsApp()),
         );
       }
     } on FirebaseAuthException catch (e) {
-      String message = 'Ett fel uppstod';
-      if (e.code == 'email-already-in-use') message = 'E-post används redan';
-      if (e.code == 'weak-password') message = 'Lösenordet är för svagt';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      String message = 'Ett fel uppstod vid registreringen.';
+
+      switch (e.code) {
+        case 'email-already-in-use':
+          message = 'E-postadressen används redan. Försök logga in istället.';
+          break;
+        case 'invalid-email':
+          message = 'E-postadressen är ogiltig. Kontrollera stavningen.';
+          break;
+        case 'operation-not-allowed':
+          message = 'Registrering med e-post är inte aktiverad. Kontakta support.';
+          break;
+        case 'weak-password':
+          message = 'Lösenordet är för svagt. Använd minst 6 tecken.';
+          break;
+        case 'network-request-failed':
+          message = 'Nätverksfel. Kontrollera din internetanslutning.';
+          break;
+        case 'too-many-requests':
+          message = 'För många försök. Vänta en stund och försök igen.';
+          break;
+        case 'internal-error':
+          message = 'Ett internt fel uppstod. Försök igen senare.';
+          break;
+        default:
+          message = 'Ett okänt fel inträffade (${e.code}).';
+      }
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Okänt fel: $e')),
@@ -139,5 +164,13 @@ class _SignupState extends State<Signup> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmController.dispose();
+    super.dispose();
   }
 }

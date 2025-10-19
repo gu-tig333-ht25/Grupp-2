@@ -47,29 +47,31 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDGQqCBTprbFC0gcoSqX1-EuDUpBqiZ1zo',
-    appId: '1:911569460339:web:85ab467a89909c8ceb5e06',
-    messagingSenderId: '911569460339',
-    projectId: 'fir-417a1',
-    authDomain: 'fir-417a1.firebaseapp.com',
-    storageBucket: 'fir-417a1.firebasestorage.app',
-    measurementId: 'G-GFXY3ZTD15',
+    apiKey: 'AIzaSyD1Z4f7IFNzZ479kyK2Rf3UkTsV791OwCk',
+    appId: '1:195850488979:web:e299884f000c11e5165166',
+    messagingSenderId: '195850488979',
+    projectId: 'grupp-2-language',
+    authDomain: 'grupp-2-language.firebaseapp.com',
+    databaseURL: 'https://grupp-2-language-default-rtdb.europe-west1.firebasedatabase.app',
+    storageBucket: 'grupp-2-language.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyA86lbmnLwgEJU36qP3gXRBHZ0_7DUkFBk',
-    appId: '1:911569460339:android:573fe872f2cd8f09eb5e06',
-    messagingSenderId: '911569460339',
-    projectId: 'fir-417a1',
-    storageBucket: 'fir-417a1.firebasestorage.app',
+    apiKey: 'AIzaSyD_CfMM6MW03AdVMp_dz0M2pVL8yaMckgk',
+    appId: '1:195850488979:android:0c264855215f8e7e165166',
+    messagingSenderId: '195850488979',
+    projectId: 'grupp-2-language',
+    databaseURL: 'https://grupp-2-language-default-rtdb.europe-west1.firebasedatabase.app',
+    storageBucket: 'grupp-2-language.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyD4bF4eNaX6MRbgsL2AGcXr_SUZPtkrv2w',
-    appId: '1:911569460339:ios:34f3e3e7e7f24a46eb5e06',
-    messagingSenderId: '911569460339',
-    projectId: 'fir-417a1',
-    storageBucket: 'fir-417a1.firebasestorage.app',
+    apiKey: 'AIzaSyDNMX-G9Rkos3IxbXLnVxBVwLHfumtkj4E',
+    appId: '1:195850488979:ios:e9b7686c9689e2a3165166',
+    messagingSenderId: '195850488979',
+    projectId: 'grupp-2-language',
+    databaseURL: 'https://grupp-2-language-default-rtdb.europe-west1.firebasedatabase.app',
+    storageBucket: 'grupp-2-language.firebasestorage.app',
     iosBundleId: 'com.example.template',
   );
 
