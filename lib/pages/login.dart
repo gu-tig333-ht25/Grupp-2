@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:template/main.dart';
+import '/main.dart';
+import '/pages/signup.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -27,7 +30,7 @@ class _LoginState extends State<Login> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const DialoglasningsApp()),
         );
       }
     } on FirebaseAuthException catch (e) {
@@ -91,7 +94,7 @@ class _LoginState extends State<Login> {
                       ),
                 const SizedBox(height: 12),
                 TextButton(
-                  onPressed: () => Navigator.pushNamed(context, '/signup'),
+                  onPressed: () => Navigator.pushReplacementNamed(context, '/signup'),
                   child: const Text('Skapa konto'),
                 ),
               ],

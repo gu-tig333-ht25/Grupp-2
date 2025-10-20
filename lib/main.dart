@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'firebase_options.dart';
 import 'pages/signup.dart';
+import 'pages/login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +30,10 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
       ),
       home: const InitFirebase(), // Säker initiering
+      routes: {
+        '/login': (context) => const Login(),
+        '/signup': (context) => const Signup(),
+      },
     );
   }
 }
@@ -86,7 +91,7 @@ class AuthGate extends StatelessWidget {
           return const DialoglasningsApp();
         }
 
-        return const Signup(); // Om ej inloggad
+        return const Login(); // Om ej inloggad
       },
     );
   }
