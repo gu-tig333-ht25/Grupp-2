@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'mal_sida.dart';
+import 'package:provider/provider.dart';
+import 'mal_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('sv_SE', null); // Initiera svenska locale
-  runApp(const DialoglasningsApp());
+  runApp(
+  ChangeNotifierProvider(
+    create: (_) => MalProvider(),
+    child: const DialoglasningsApp(),
+  ),
+);
 }
 
 class DialoglasningsApp extends StatelessWidget {
@@ -333,17 +341,6 @@ class TimerSida extends StatelessWidget {
   }
 }
 
-class MalSida extends StatelessWidget {
-  const MalSida({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Mål")),
-      body: const Center(child: Text("Sätt och följ upp mål här.")),
-    );
-  }
-}
 
 class BetygSida extends StatelessWidget {
   const BetygSida({super.key});
