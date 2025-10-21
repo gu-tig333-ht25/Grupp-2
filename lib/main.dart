@@ -6,14 +6,23 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'firebase_options.dart';
 import 'pages/signup.dart';
 import 'pages/login.dart';
+import 'mal_sida.dart';
+import 'package:provider/provider.dart';
+import 'mal_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('sv_SE', " ");//venska locale
+  await initializeDateFormatting('sv_SE', null); // Initiera svenska locale
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => MalProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -25,11 +34,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Dialogisk Läsning',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
+        colorScheme:
+            ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
         useMaterial3: true,
         scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
       ),
-      home: const InitFirebase(), // Säker initiering
+      home: const InitFirebase(),
       routes: {
         '/login': (context) => const Login(),
         '/signup': (context) => const Signup(),
@@ -45,7 +55,7 @@ class InitFirebase extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureBuilder<FirebaseApp>(
       future: Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform, // viktig för webben
+        options: DefaultFirebaseOptions.currentPlatform,
       ),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -60,7 +70,6 @@ class InitFirebase extends StatelessWidget {
             ),
           );
         }
-        // Firebase initierat 
         return const AuthGate();
       },
     );
@@ -91,7 +100,7 @@ class AuthGate extends StatelessWidget {
           return const DialoglasningsApp();
         }
 
-        return const Login(); // Om ej inloggad
+        return const Login();
       },
     );
   }
@@ -106,7 +115,8 @@ class DialoglasningsApp extends StatelessWidget {
       title: 'Dialogisk Läsning',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
+        colorScheme:
+            ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
         useMaterial3: true,
         scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
       ),
@@ -204,17 +214,18 @@ class StartSida extends StatelessWidget {
                           children: [
                             TextSpan(
                               text: "📅 Idag: $idagDatum\n",
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                             ),
-                            TextSpan(
-                              text: "Bok: Bamse och tjuvjakten\nLästid: 10 minuter\nSe video: Hur man läser interaktivt",
-                              style: const TextStyle(fontSize: 14, color: Colors.white),
+                            const TextSpan(
+                              text:
+                                  "Bok: Bamse och tjuvjakten\nLästid: 10 minuter\nSe video: Hur man läser interaktivt",
+                              style: TextStyle(fontSize: 14, color: Colors.white),
                             ),
                           ],
                         ),
                       ),
                     ),
-                    
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
@@ -236,7 +247,7 @@ class StartSida extends StatelessWidget {
               // Övriga knappar på startsidan
               _buildNavButton(context, "🎯 Mål", const MalSida()),
               const SizedBox(height: 16),
-              _buildNavButton(context, "⭐ Sessioner", const SessionerSida()), // Flyttad hit
+              _buildNavButton(context, "⭐ Sessioner", const SessionerSida()),
               const SizedBox(height: 16),
               _buildNavButton(context, "📖 Om boken", const OmBokenSida()),
               const SizedBox(height: 16),
@@ -329,41 +340,46 @@ class KalenderSida extends StatelessWidget {
   }
 }
 
-// SESSIONER (historik över tidigare lästillfällen)
-class SessionerSida extends StatelessWidget { 
-  const SessionerSida({super.key}); 
-  final List<Map<String, String>> sessioner = const [ 
-    {"datum": "Fredag 19 oktober", "betyg": "4", "anteckning": "Tuve var engagerad idag"}, 
-    {"datum": "Lördag 20 oktober", "betyg": "3", "anteckning": "Lite trött men vi läste två sidor"}, 
-    {"datum": "Söndag 21 oktober", "betyg": "5", "anteckning": "Väldigt fokuserad läsning!"}, 
-  ]; 
-    
-    @override Widget build(BuildContext context) { 
-      return Scaffold( 
-        appBar: AppBar( title: const Text("Sessioner"), 
-        centerTitle: true, backgroundColor: const Color(0xFF8CA1DE), 
-        foregroundColor: Colors.white, 
-        ), 
-        body: ListView.builder( 
-          padding: const EdgeInsets.all(16), 
-          itemCount: sessioner.length, 
-          itemBuilder: (context, index) { 
-            final session = sessioner[index]; 
-            return Card( 
-              margin: const EdgeInsets.symmetric(vertical: 8), 
-              color: Colors.white, 
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), 
-              child: ListTile( leading: const Icon(Icons.bookmark, color: Color(0xFF8CA1DE)), 
-              title: Text(session["datum"]!), 
-              subtitle: Text("Betyg: ${session["betyg"]}/5\n${session["anteckning"]}"), 
-              isThreeLine: true, 
-              ), 
-            ); 
-          }, 
-        ), 
-      ); 
-    } 
+// SESSIONER
+class SessionerSida extends StatelessWidget {
+  const SessionerSida({super.key});
+
+  final List<Map<String, String>> sessioner = const [
+    {"datum": "Fredag 19 oktober", "betyg": "4", "anteckning": "Tuve var engagerad idag"},
+    {"datum": "Lördag 20 oktober", "betyg": "3", "anteckning": "Lite trött men vi läste två sidor"},
+    {"datum": "Söndag 21 oktober", "betyg": "5", "anteckning": "Väldigt fokuserad läsning!"},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Sessioner"),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF8CA1DE),
+        foregroundColor: Colors.white,
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: sessioner.length,
+        itemBuilder: (context, index) {
+          final session = sessioner[index];
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            color: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: ListTile(
+              leading: const Icon(Icons.bookmark, color: Color(0xFF8CA1DE)),
+              title: Text(session["datum"]!),
+              subtitle: Text("Betyg: ${session["betyg"]}/5\n${session["anteckning"]}"),
+              isThreeLine: true,
+            ),
+          );
+        },
+      ),
+    );
   }
+}
 
 // FAMILJEFORUM
 class ForumSida extends StatelessWidget {
@@ -418,18 +434,6 @@ class TimerSida extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text("Timer")),
       body: const Center(child: Text("Timer-funktion här.")),
-    );
-  }
-}
-
-class MalSida extends StatelessWidget {
-  const MalSida({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Mål")),
-      body: const Center(child: Text("Sätt och följ upp mål här.")),
     );
   }
 }
