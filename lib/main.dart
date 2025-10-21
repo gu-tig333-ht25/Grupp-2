@@ -3,13 +3,19 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'timer.dart';
+import 'session_provider.dart';
+import 'betyg.dart';
+import 'sessioner.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('sv_SE', null);
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => TimerProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TimerProvider()),
+        ChangeNotifierProvider(create: (_) => SessionProvider()),
+      ],
       child: const DialoglasningsApp(),
     ),
   );
@@ -240,8 +246,13 @@ class DagensSessionSida extends StatelessWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
+                final timerProvider = Provider.of<TimerProvider>(context, listen: false);
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => const BetygSida()));
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BetygSida(readTime: timerProvider.formattedTime),
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
               child:
@@ -270,42 +281,6 @@ class KalenderSida extends StatelessWidget {
     );
   }
 }
-
-// SESSIONER (historik över tidigare lästillfällen)
-class SessionerSida extends StatelessWidget { 
-  const SessionerSida({super.key}); 
-  final List<Map<String, String>> sessioner = const [ 
-    {"datum": "Fredag 19 oktober", "betyg": "4", "anteckning": "Tuve var engagerad idag"}, 
-    {"datum": "Lördag 20 oktober", "betyg": "3", "anteckning": "Lite trött men vi läste två sidor"}, 
-    {"datum": "Söndag 21 oktober", "betyg": "5", "anteckning": "Väldigt fokuserad läsning!"}, 
-  ]; 
-    
-    @override Widget build(BuildContext context) { 
-      return Scaffold( 
-        appBar: AppBar( title: const Text("Sessioner"), 
-        centerTitle: true, backgroundColor: const Color(0xFF8CA1DE), 
-        foregroundColor: Colors.white, 
-        ), 
-        body: ListView.builder( 
-          padding: const EdgeInsets.all(16), 
-          itemCount: sessioner.length, 
-          itemBuilder: (context, index) { 
-            final session = sessioner[index]; 
-            return Card( 
-              margin: const EdgeInsets.symmetric(vertical: 8), 
-              color: Colors.white, 
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), 
-              child: ListTile( leading: const Icon(Icons.bookmark, color: Color(0xFF8CA1DE)), 
-              title: Text(session["datum"]!), 
-              subtitle: Text("Betyg: ${session["betyg"]}/5\n${session["anteckning"]}"), 
-              isThreeLine: true, 
-              ), 
-            ); 
-          }, 
-        ), 
-      ); 
-    } 
-  }
 
 // FAMILJEFORUM
 class ForumSida extends StatelessWidget {
@@ -359,18 +334,6 @@ class MalSida extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text("Mål")),
       body: const Center(child: Text("Sätt och följ upp mål här.")),
-    );
-  }
-}
-
-class BetygSida extends StatelessWidget {
-  const BetygSida({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Betygsätt dagens läsning")),
-      body: const Center(child: Text("Här kan du ge ett betyg på dagens lästillfälle.")),
     );
   }
 }

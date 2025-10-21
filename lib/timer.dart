@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'main.dart';
 import 'package:intl/intl.dart';
+import 'betyg.dart';
 
 class TimerProvider extends ChangeNotifier {
   int _seconds = 0;
@@ -51,7 +51,8 @@ class TimerProvider extends ChangeNotifier {
   void endSession(BuildContext context) {
     _timer?.cancel();
     _isRunning = false;
-    notifyListeners();
+    
+    final sessionTime = formattedTime;
 
     // Visa popup innan man går till Betygsätt-sidan
     showDialog(
@@ -68,13 +69,14 @@ class TimerProvider extends ChangeNotifier {
           TextButton(
             child: const Text("Betygsätt"),
             onPressed: () {
-              _seconds = 0; // Nollställ timern
-              notifyListeners();
               Navigator.pop(context);
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (_) => const BetygSida()),
+                MaterialPageRoute(
+                  builder: (_) => BetygSida(readTime: sessionTime),
+                ),
               );
+              resetTimer(); // nollställ efter att readTime är skickad
             },
           ),
         ],
