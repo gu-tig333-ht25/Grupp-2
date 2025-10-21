@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "195850488979",
+    "firebase_url": "https://grupp-2-language-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "grupp-2-language",
+    "storage_bucket": "grupp-2-language.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:195850488979:android:0c264855215f8e7e165166",
+        "android_client_info": {
+          "package_name": "com.example.template"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_CfMM6MW03AdVMp_dz0M2pVL8yaMckgk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
