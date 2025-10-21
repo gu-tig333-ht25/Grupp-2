@@ -1,11 +1,100 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'firebase_options.dart';
+import 'pages/signup.dart';
+import 'pages/login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('sv_SE', null); // Initiera svenska locale
-  runApp(const DialoglasningsApp());
+  await initializeDateFormatting('sv_SE', " ");//venska locale
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Dialogisk Läsning',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
+      ),
+      home: const InitFirebase(), // Säker initiering
+      routes: {
+        '/login': (context) => const Login(),
+        '/signup': (context) => const Signup(),
+      },
+    );
+  }
+}
+
+class InitFirebase extends StatelessWidget {
+  const InitFirebase({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<FirebaseApp>(
+      future: Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform, // viktig för webben
+      ),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text('Fel vid Firebase-initiering: ${snapshot.error}'),
+            ),
+          );
+        }
+        // Firebase initierat 
+        return const AuthGate();
+      },
+    );
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(child: Text('Fel i authStateChanges: ${snapshot.error}')),
+          );
+        }
+
+        if (snapshot.hasData) {
+          return const DialoglasningsApp();
+        }
+
+        return const Login(); // Om ej inloggad
+      },
+    );
+  }
 }
 
 class DialoglasningsApp extends StatelessWidget {
