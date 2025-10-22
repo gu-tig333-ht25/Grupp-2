@@ -3,15 +3,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-
 import 'firebase_options.dart';
 import 'pages/signup.dart';
 import 'pages/login.dart';
 import 'mal_sida.dart';
 import 'package:provider/provider.dart';
 import 'mal_provider.dart';
+import 'timer.dart';
+import 'session_provider.dart';
+import 'betyg.dart';
+import 'sessioner.dart';
 import 'views/resurser_view.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,12 +23,18 @@ void main() async {
   );
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => MalProvider(),
-      child: const MyApp(),
+    MultiProvider(
+      // Kombinerar alla dina providers
+      providers: [
+        ChangeNotifierProvider(create: (_) => MalProvider()),
+        ChangeNotifierProvider(create: (_) => TimerProvider()),
+        ChangeNotifierProvider(create: (_) => SessionProvider()),
+      ],
+      child: const MyApp(), // MyApp sköter routing och AuthGate
     ),
   );
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -229,17 +237,32 @@ class StartSida extends StatelessWidget {
                         ),
                       ),
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF8CA1DE),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    const SizedBox(width: 12),
+
+                    // Knapp
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF8CA1DE),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const DagensSessionSida()),
+                          );
+                        },
+                        child: const Text(
+                          "Starta\nsession",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
                       ),
-                      onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => const DagensSessionSida()));
-                      },
-                      child: const Text("Starta session"),
                     ),
                   ],
                 ),
@@ -312,12 +335,19 @@ class DagensSessionSida extends StatelessWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
+                // Hämta lästiden från TimerProvider innan navigering till BetygSida
+                final timerProvider = Provider.of<TimerProvider>(context, listen: false);
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => const BetygSida()));
+                  context,
+                  MaterialPageRoute(
+                    // Antar att BetygSida nu tar en `readTime` som argument
+                    builder: (_) => BetygSida(readTime: timerProvider.formattedTime),
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
               child:
-                  const Text("⭐ Betygsätt dagens session", style: TextStyle(color: Colors.white)),
+                const Text("⭐ Betygsätt dagens session", style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -339,47 +369,6 @@ class KalenderSida extends StatelessWidget {
         foregroundColor: Colors.white,
       ),
       body: const Center(child: Text("Här kan kalendern ligga.")),
-    );
-  }
-}
-
-// SESSIONER
-class SessionerSida extends StatelessWidget {
-  const SessionerSida({super.key});
-
-  final List<Map<String, String>> sessioner = const [
-    {"datum": "Fredag 19 oktober", "betyg": "4", "anteckning": "Tuve var engagerad idag"},
-    {"datum": "Lördag 20 oktober", "betyg": "3", "anteckning": "Lite trött men vi läste två sidor"},
-    {"datum": "Söndag 21 oktober", "betyg": "5", "anteckning": "Väldigt fokuserad läsning!"},
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Sessioner"),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF8CA1DE),
-        foregroundColor: Colors.white,
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: sessioner.length,
-        itemBuilder: (context, index) {
-          final session = sessioner[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8),
-            color: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: ListTile(
-              leading: const Icon(Icons.bookmark, color: Color(0xFF8CA1DE)),
-              title: Text(session["datum"]!),
-              subtitle: Text("Betyg: ${session["betyg"]}/5\n${session["anteckning"]}"),
-              isThreeLine: true,
-            ),
-          );
-        },
-      ),
     );
   }
 }
@@ -429,29 +418,6 @@ class InstallningarSida extends StatelessWidget {
 }
 
 // ÖVRIGA UNDERSIDOR
-class TimerSida extends StatelessWidget {
-  const TimerSida({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Timer")),
-      body: const Center(child: Text("Timer-funktion här.")),
-    );
-  }
-}
-
-class BetygSida extends StatelessWidget {
-  const BetygSida({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Betygsätt dagens läsning")),
-      body: const Center(child: Text("Här kan du ge ett betyg på dagens lästillfälle.")),
-    );
-  }
-}
 
 class OmBokenSida extends StatelessWidget {
   const OmBokenSida({super.key});
@@ -461,38 +427,6 @@ class OmBokenSida extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text("Om boken")),
       body: const Center(child: Text("Information om boken här.")),
-    );
-  }
-}
-
-class ResurserSida extends StatelessWidget {
-  const ResurserSida({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Resurser & videor")),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: const [
-          ListTile(
-            leading: Icon(Icons.link),
-            title: Text("Introduktion till dialogisk läsning"),
-          ),
-          ListTile(
-            leading: Icon(Icons.link),
-            title: Text("PEER-sekvens och exempel"),
-          ),
-          ListTile(
-            leading: Icon(Icons.link),
-            title: Text("CROWD-frågor och metoder"),
-          ),
-          ListTile(
-            leading: Icon(Icons.video_library),
-            title: Text("Se instruktionsvideo om lässtrategier"),
-          ),
-        ],
-      ),
     );
   }
 }
