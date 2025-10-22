@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-
 import 'firebase_options.dart';
 import 'pages/signup.dart';
 import 'pages/login.dart';
@@ -11,6 +10,8 @@ import 'mal_sida.dart';
 import 'package:provider/provider.dart';
 import 'mal_provider.dart';
 import 'views/resurser_view.dart';
+import 'timer.dart';
+import 'session_provider.dart';
 
 
 void main() async {
@@ -21,8 +22,12 @@ void main() async {
   );
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => MalProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => MalProvider()),
+        ChangeNotifierProvider(create: (_) => TimerProvider()),
+        ChangeNotifierProvider(create: (_) => SessionProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -46,6 +51,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const Login(),
         '/signup': (context) => const Signup(),
+        '/timer': (context) => const TimerSida(),
       },
     );
   }
@@ -424,19 +430,6 @@ class InstallningarSida extends StatelessWidget {
         foregroundColor: Colors.white,
       ),
       body: const Center(child: Text("Profil och appinställningar här.")),
-    );
-  }
-}
-
-// ÖVRIGA UNDERSIDOR
-class TimerSida extends StatelessWidget {
-  const TimerSida({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Timer")),
-      body: const Center(child: Text("Timer-funktion här.")),
     );
   }
 }
