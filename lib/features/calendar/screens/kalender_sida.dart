@@ -1,70 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/auth_provider.dart';
+import 'package:table_calendar/table_calendar.dart';
 import '../providers/calendar_provider.dart';
+import '../providers/auth_provider.dart';
 
-class KalenderSida extends StatelessWidget {
+class KalenderSida extends StatefulWidget {
   const KalenderSida({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context);
-    final calendar = Provider.of<CalendarProvider>(context);
+  State<KalenderSida> createState() => _KalenderSidaState();
+}
 
-    if (!auth.isLoggedIn) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text("Kalender"),
-          backgroundColor: const Color(0xFF8CA1DE),
-          foregroundColor: Colors.white,
-        ),
-        body: Center(
-          child: ElevatedButton.icon(
-            icon: const Icon(Icons.login),
-            label: const Text("Logga in med Google"),
-            onPressed: () async {
-              await auth.signIn();
-            },
-          ),
-        ),
-      );
-    }
+class _KalenderSidaState extends State<KalenderSida> {
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+
+  @override
+  Widget build(BuildContext context) {
+    final calendar = Provider.of<CalendarProvider>(context);
+    final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Min Google Kalender"),
+        title: const Text("Kalender"),
         backgroundColor: const Color(0xFF8CA1DE),
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async{
-              await auth.signOut();
-            },
-          )
+            icon: const Icon(Icons.refresh),
+            onPressed: () => calendar.loadGoogleEvents(auth),
+          ),
         ],
       ),
-      body: FutureBuilder(
-        future: calendar.loadEvents(auth),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (calendar.events.isEmpty) {
-            return const Center(child: Text("Inga händelser hittades"));
-          }
-
-          return ListView.builder(
-            itemCount: calendar.events.length,
-            itemBuilder: (context, i) {
-              final event = calendar.events[i];
-              return ListTile(
-                title: Text(event.summary ?? "Namnlös händelse"),
-                subtitle: Text(event.start?.dateTime?.toLocal().toString() ?? "Ingen tid"),
-              );
+      body: Column(
+        children: [
+          TableCalendar(
+            locale: 'sv_SE',
+            focusedDay: _focusedDay,
+            firstDay: DateTime.utc(2020, 1, 1),
+            lastDay: DateTime.utc(2030, 12, 31),
+            selectedDayPredicate: (day) => isSameDay(day, _selectedDay),
+            eventLoader: (day) => calendar.getEventsForDay(day),
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay;
+              });
             },
-          );
-        },
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              if (_selectedDay != null) {
+                calendar.addLocalEvent(_selectedDay!, "Ny lokal händelse");
+              }
+            },
+            child: const Text("Lägg till lokal händelse"),
+          ),
+        ],
       ),
     );
   }
