@@ -419,17 +419,16 @@ class InstallningarSida extends StatelessWidget {
   }
 }
 class BetygSida extends StatelessWidget {
-  final String readTime; // <-- lästid som skickas in
+  final String readTime; 
 
-  const BetygSida({super.key, required this.readTime}); // <-- krävs
+  const BetygSida({super.key, required this.readTime}); 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Betygsätt dagens läsning")),
       body: Center(
-        child: Text("Du har läst i: $readTime"), // <-- visa lästid
-      ),
+        child: Text("Du har läst i: $readTime"), 
     );
   }
 }
