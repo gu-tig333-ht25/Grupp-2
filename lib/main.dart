@@ -429,6 +429,7 @@ class BetygSida extends StatelessWidget {
       appBar: AppBar(title: const Text("Betygsätt dagens läsning")),
       body: Center(
         child: Text("Du har läst i: $readTime"), 
+      ),
     );
   }
 }
