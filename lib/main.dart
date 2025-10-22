@@ -1,24 +1,109 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'firebase_options.dart';
+import 'pages/signup.dart';
+import 'pages/login.dart';
+import 'mal_sida.dart';
 import 'package:provider/provider.dart';
-import 'timer.dart';
-import 'session_provider.dart';
-import 'betyg.dart';
-import 'sessioner.dart';
+import 'mal_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('sv_SE', null);
+  await initializeDateFormatting('sv_SE', null); // Initiera svenska locale
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => TimerProvider()),
-        ChangeNotifierProvider(create: (_) => SessionProvider()),
-      ],
-      child: const DialoglasningsApp(),
+    ChangeNotifierProvider(
+      create: (_) => MalProvider(),
+      child: const MyApp(),
     ),
   );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Dialogisk Läsning',
+      theme: ThemeData(
+        colorScheme:
+            ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
+      ),
+      home: const InitFirebase(),
+      routes: {
+        '/login': (context) => const Login(),
+        '/signup': (context) => const Signup(),
+      },
+    );
+  }
+}
+
+class InitFirebase extends StatelessWidget {
+  const InitFirebase({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<FirebaseApp>(
+      future: Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      ),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text('Fel vid Firebase-initiering: ${snapshot.error}'),
+            ),
+          );
+        }
+        return const AuthGate();
+      },
+    );
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(child: Text('Fel i authStateChanges: ${snapshot.error}')),
+          );
+        }
+
+        if (snapshot.hasData) {
+          return const DialoglasningsApp();
+        }
+
+        return const Login();
+      },
+    );
+  }
 }
 
 class DialoglasningsApp extends StatelessWidget {
@@ -30,14 +115,12 @@ class DialoglasningsApp extends StatelessWidget {
       title: 'Dialogisk Läsning',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
+        colorScheme:
+            ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
         useMaterial3: true,
         scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
       ),
       home: const HuvudNavigator(),
-      routes: {
-        '/betyg': (context) => const BetygSida(),
-      },
     );
   }
 }
@@ -117,31 +200,46 @@ class StartSida extends StatelessWidget {
             children: [
               // Idag-ruta med starta session-knapp
               Container(
-  decoration: BoxDecoration(
-    color: const Color(0xFF8CA1DE),
-    borderRadius: BorderRadius.circular(16),
-  ),
-  padding: const EdgeInsets.all(16),
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      // Textdel (tar så mycket plats som möjligt)
-      Expanded(
-        child: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: "📅 Idag: $idagDatum\n",
-                style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              ),
-              TextSpan(
-                text:
-                    "Bok: Bamse och tjuvjakten\nLästid: 10 minuter\nVideo: Fråga och utvärdera",
-                style: const TextStyle(fontSize: 14, color: Colors.white),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF8CA1DE),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "📅 Idag: $idagDatum\n",
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                            ),
+                            const TextSpan(
+                              text:
+                                  "Bok: Bamse och tjuvjakten\nLästid: 10 minuter\nSe video: Hur man läser interaktivt",
+                              style: TextStyle(fontSize: 14, color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF8CA1DE),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => const DagensSessionSida()));
+                      },
+                      child: const Text("Starta session"),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -175,24 +273,22 @@ class StartSida extends StatelessWidget {
           ),
         ),
       ),
-    ],
-  ),
-),
-              const SizedBox(height: 24),
-              // Övriga knappar på startsidan
-              _buildNavButton(context, "🎯 Mål", const MalSida()),
-              const SizedBox(height: 16),
-              _buildNavButton(context, "⭐ Sessioner", const SessionerSida()), // Flyttad hit
-              const SizedBox(height: 16),
-              _buildNavButton(context, "📖 Om boken", const OmBokenSida()),
-              const SizedBox(height: 16),
-              _buildNavButton(context, "🎥 Resurser & videor", const ResurserSida()),
-            ],
-          ),
+      
+      const SizedBox(height: 24),
+      // Övriga knappar på startsidan
+      _buildNavButton(context, "🎯 Mål", const MalSida()),
+      const SizedBox(height: 16),
+      _buildNavButton(context, "⭐ Sessioner", const SessionerSida()),
+      const SizedBox(height: 16),
+      _buildNavButton(context, "📖 Om boken", const OmBokenSida()),
+      const SizedBox(height: 16),
+      _buildNavButton(context, "🎥 Resurser & videor", const ResurserSida()),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildNavButton(BuildContext context, String text, Widget sida) {
     return ElevatedButton(
@@ -244,13 +340,8 @@ class DagensSessionSida extends StatelessWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                final timerProvider = Provider.of<TimerProvider>(context, listen: false);
                 Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => BetygSida(readTime: timerProvider.formattedTime),
-                  ),
-                );
+                    context, MaterialPageRoute(builder: (context) => const BetygSida()));
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
               child:
@@ -276,6 +367,47 @@ class KalenderSida extends StatelessWidget {
         foregroundColor: Colors.white,
       ),
       body: const Center(child: Text("Här kan kalendern ligga.")),
+    );
+  }
+}
+
+// SESSIONER
+class SessionerSida extends StatelessWidget {
+  const SessionerSida({super.key});
+
+  final List<Map<String, String>> sessioner = const [
+    {"datum": "Fredag 19 oktober", "betyg": "4", "anteckning": "Tuve var engagerad idag"},
+    {"datum": "Lördag 20 oktober", "betyg": "3", "anteckning": "Lite trött men vi läste två sidor"},
+    {"datum": "Söndag 21 oktober", "betyg": "5", "anteckning": "Väldigt fokuserad läsning!"},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Sessioner"),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF8CA1DE),
+        foregroundColor: Colors.white,
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: sessioner.length,
+        itemBuilder: (context, index) {
+          final session = sessioner[index];
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            color: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: ListTile(
+              leading: const Icon(Icons.bookmark, color: Color(0xFF8CA1DE)),
+              title: Text(session["datum"]!),
+              subtitle: Text("Betyg: ${session["betyg"]}/5\n${session["anteckning"]}"),
+              isThreeLine: true,
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -324,14 +456,27 @@ class InstallningarSida extends StatelessWidget {
   }
 }
 
-class MalSida extends StatelessWidget {
-  const MalSida({super.key});
+// ÖVRIGA UNDERSIDOR
+class TimerSida extends StatelessWidget {
+  const TimerSida({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Mål")),
-      body: const Center(child: Text("Sätt och följ upp mål här.")),
+      appBar: AppBar(title: const Text("Timer")),
+      body: const Center(child: Text("Timer-funktion här.")),
+    );
+  }
+}
+
+class BetygSida extends StatelessWidget {
+  const BetygSida({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Betygsätt dagens läsning")),
+      body: const Center(child: Text("Här kan du ge ett betyg på dagens lästillfälle.")),
     );
   }
 }
