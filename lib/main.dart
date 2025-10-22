@@ -14,6 +14,8 @@ import 'session_provider.dart';
 import 'betyg.dart';
 import 'sessioner.dart';
 import 'views/resurser_view.dart';
+import 'timer.dart';
+import 'session_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +26,6 @@ void main() async {
 
   runApp(
     MultiProvider(
-      // Kombinerar alla dina providers
       providers: [
         ChangeNotifierProvider(create: (_) => MalProvider()),
         ChangeNotifierProvider(create: (_) => TimerProvider()),
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const Login(),
         '/signup': (context) => const Signup(),
+        '/timer': (context) => const TimerSida(),
       },
     );
   }
@@ -416,7 +418,21 @@ class InstallningarSida extends StatelessWidget {
     );
   }
 }
+class BetygSida extends StatelessWidget {
+  final String readTime; 
 
+  const BetygSida({super.key, required this.readTime}); 
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Betygsätt dagens läsning")),
+      body: Center(
+        child: Text("Du har läst i: $readTime"), 
+      ),
+    );
+  }
+}
 // ÖVRIGA UNDERSIDOR
 
 class OmBokenSida extends StatelessWidget {
@@ -430,3 +446,4 @@ class OmBokenSida extends StatelessWidget {
     );
   }
 }
+
