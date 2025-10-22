@@ -9,6 +9,8 @@ import 'pages/login.dart';
 import 'mal_sida.dart';
 import 'package:provider/provider.dart';
 import 'mal_provider.dart';
+import 'views/resurser_view.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -462,34 +464,4 @@ class OmBokenSida extends StatelessWidget {
   }
 }
 
-class ResurserSida extends StatelessWidget {
-  const ResurserSida({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Resurser & videor")),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: const [
-          ListTile(
-            leading: Icon(Icons.link),
-            title: Text("Introduktion till dialogisk läsning"),
-          ),
-          ListTile(
-            leading: Icon(Icons.link),
-            title: Text("PEER-sekvens och exempel"),
-          ),
-          ListTile(
-            leading: Icon(Icons.link),
-            title: Text("CROWD-frågor och metoder"),
-          ),
-          ListTile(
-            leading: Icon(Icons.video_library),
-            title: Text("Se instruktionsvideo om lässtrategier"),
-          ),
-        ],
-      ),
-    );
-  }
-}
