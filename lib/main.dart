@@ -178,9 +178,7 @@ class StartSida extends StatelessWidget {
     ],
   ),
 ),
-
               const SizedBox(height: 24),
-
               // Övriga knappar på startsidan
               _buildNavButton(context, "🎯 Mål", const MalSida()),
               const SizedBox(height: 16),
