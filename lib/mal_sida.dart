@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'mal_provider.dart';
 import 'skapa_mal_sida.dart';
 
+enum Filtrering { alla, klara, ejKlara }
+
 class MalSida extends StatefulWidget {
   const MalSida({super.key});
 
@@ -53,8 +55,8 @@ class _MalSidaState extends State<MalSida> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.radio_button_unchecked,
-                  color: Colors.orange),
+              leading:
+                  const Icon(Icons.radio_button_unchecked, color: Colors.orange),
               title: const Text("Ej avklarade mål"),
               onTap: () {
                 setState(() => _valdFiltrering = Filtrering.ejKlara);
@@ -69,7 +71,9 @@ class _MalSidaState extends State<MalSida> {
         backgroundColor: const Color(0xFF8CA1DE),
         onPressed: () async {
           await Navigator.push(
-              context, MaterialPageRoute(builder: (_) => const SkapaMalSida()));
+            context,
+            MaterialPageRoute(builder: (_) => const SkapaMalSida()),
+          );
         },
         label: const Text("Lägg till mål"),
         icon: const Icon(Icons.add, color: Colors.white),
@@ -89,11 +93,21 @@ class _MalSidaState extends State<MalSida> {
   }
 }
 
-enum Filtrering { alla, klara, ejKlara }
-
-class MalListaView extends StatelessWidget {
+class MalListaView extends StatefulWidget {
   final Filtrering filtrering;
   const MalListaView({super.key, required this.filtrering});
+
+  @override
+  State<MalListaView> createState() => _MalListaViewState();
+}
+
+class _MalListaViewState extends State<MalListaView> {
+  @override
+  void initState() {
+    super.initState();
+    final malProvider = Provider.of<MalProvider>(context, listen: false);
+    malProvider.fetchMal();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,11 +115,11 @@ class MalListaView extends StatelessWidget {
     final allaMal = malProvider.malLista;
 
     // Filtrering
-    final filtrerad = switch (filtrering) {
-      Filtrering.klara => allaMal.where((m) => m.klar).toList(),
-      Filtrering.ejKlara => allaMal.where((m) => !m.klar).toList(),
-      _ => allaMal,
-    };
+    final filtrerad = widget.filtrering == Filtrering.klara
+        ? allaMal.where((m) => m.klar).toList()
+        : widget.filtrering == Filtrering.ejKlara
+            ? allaMal.where((m) => !m.klar).toList()
+            : allaMal;
 
     final dagsMal = filtrerad.where((m) => m.typ == 'Dagsmål').toList();
     final veckMal = filtrerad.where((m) => m.typ == 'Veckomål').toList();

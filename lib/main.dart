@@ -19,7 +19,7 @@ import 'session_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('sv_SE', null); // Initiera svenska locale
+  await initializeDateFormatting('sv_SE', null); 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -31,7 +31,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => TimerProvider()),
         ChangeNotifierProvider(create: (_) => SessionProvider()),
       ],
-      child: const MyApp(), // MyApp sköter routing och AuthGate
+      child: const MyApp(), 
     ),
   );
 }
@@ -138,7 +138,6 @@ class DialoglasningsApp extends StatelessWidget {
   }
 }
 
-// HUVUDNAVIGATOR MED BOTTOM BAR
 class HuvudNavigator extends StatefulWidget {
   const HuvudNavigator({super.key});
 
@@ -182,7 +181,6 @@ class _HuvudNavigatorState extends State<HuvudNavigator> {
   }
 }
 
-// STARTSIDAN
 class StartSida extends StatelessWidget {
   const StartSida({super.key});
 

@@ -1,6 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'mal_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+final _db = FirebaseFirestore.instance;
+final _auth = FirebaseAuth.instance;
+
+Future<void> saveGoalToFirestore({
+  required String title,
+  required String type,
+  String? note,
+  DateTime? date,
+}) async {
+  final user = _auth.currentUser;
+  if (user == null) return;
+
+  await _db
+      .collection('users')
+      .doc(user.uid)
+      .collection('goals')
+      .add({
+        'title': title,
+        'type': type,
+        'note': note ?? '',
+        'date': date != null ? Timestamp.fromDate(date) : null,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+}
 
 class SkapaMalSida extends StatefulWidget {
   const SkapaMalSida({super.key});
@@ -77,15 +104,26 @@ class _SkapaMalSidaState extends State<SkapaMalSida> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8CA1DE)),
-                onPressed: () {
+                onPressed: () async{
                   if (_malController.text.isNotEmpty) {
+                    final title = _malController.text;
+                    final note = _anteckningController.text;
+                    final type = _malTyp;
+                    final date = _malTyp == 'Dagsmål' ? DateTime.now() : _valdDatum;
+                    
                     malProvider.laggTillMal(
                       _malController.text,
                       typ: _malTyp,
                       anteckning: _anteckningController.text,
                       datum: _malTyp == 'Dagsmål' ? DateTime.now() : _valdDatum,
                     );
-                    Navigator.pop(context);
+                    await saveGoalToFirestore(
+                      title: title,
+                      type: type,
+                      note: note,
+                      date: date,
+                    );
+                  Navigator.pop(context);
                   }
                 },
                 child: const Text("Skapa mål", style: TextStyle(color: Colors.white)),
