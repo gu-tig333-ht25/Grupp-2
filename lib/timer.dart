@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'betyg.dart';
+import 'views/betyg.dart';
 
 class TimerProvider extends ChangeNotifier {
   int _seconds = 0;

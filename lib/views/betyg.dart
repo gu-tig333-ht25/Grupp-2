@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'session_provider.dart';
+import '../providers/session_provider.dart';
 
 class BetygSida extends StatefulWidget {
   final String? readTime; // Lästid från timer
