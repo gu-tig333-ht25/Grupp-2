@@ -3,15 +3,119 @@ import 'package:provider/provider.dart';
 import 'mal_provider.dart';
 import 'skapa_mal_sida.dart';
 
-class MalSida extends StatefulWidget {
+// --- Filtreringstyper ---
+enum Filtrering { alla, klara, ejKlara }
+
+class MalSida extends StatelessWidget {
   const MalSida({super.key});
 
   @override
-  State<MalSida> createState() => _MalSidaState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFFF9E6),
+      appBar: AppBar(
+        title: const Text("Dina mål"),
+        backgroundColor: const Color(0xFF8CA1DE),
+        foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.menu),
+            onSelected: (value) {
+              if (value == 'alla') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const FiltreradMalSida(filtrering: Filtrering.alla),
+                  ),
+                );
+              } else if (value == 'klara') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const FiltreradMalSida(filtrering: Filtrering.klara),
+                  ),
+                );
+              } else if (value == 'ejklara') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        const FiltreradMalSida(filtrering: Filtrering.ejKlara),
+                  ),
+                );
+              }
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem(
+                value: 'alla',
+                child: Row(
+                  children: [
+                    Icon(Icons.list),
+                    SizedBox(width: 8),
+                    Text("Alla mål"),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'klara',
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.green),
+                    SizedBox(width: 8),
+                    Text("Avklarade mål"),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'ejklara',
+                child: Row(
+                  children: [
+                    Icon(Icons.radio_button_unchecked, color: Colors.orange),
+                    SizedBox(width: 8),
+                    Text("Ej avklarade mål"),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: const MalListaView(filtrering: Filtrering.alla),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: const Color(0xFF8CA1DE),
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SkapaMalSida()),
+          );
+        },
+        label: const Text("Lägg till mål"),
+        icon: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
 }
 
-class _MalSidaState extends State<MalSida> {
-  Filtrering _valdFiltrering = Filtrering.alla;
+class FiltreradMalSida extends StatelessWidget {
+  final Filtrering filtrering;
+  const FiltreradMalSida({super.key, required this.filtrering});
+
+  String _getTitel() {
+    switch (filtrering) {
+      case Filtrering.klara:
+        return "Avklarade mål";
+      case Filtrering.ejKlara:
+        return "Ej avklarade mål";
+      default:
+        return "Alla mål";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,75 +125,15 @@ class _MalSidaState extends State<MalSida> {
         title: Text(_getTitel()),
         backgroundColor: const Color(0xFF8CA1DE),
         foregroundColor: Colors.white,
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Color(0xFF8CA1DE)),
-              child: Text(
-                'Filtrera mål',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.list),
-              title: const Text("Alla mål"),
-              onTap: () {
-                setState(() => _valdFiltrering = Filtrering.alla);
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.check_circle, color: Colors.green),
-              title: const Text("Avklarade mål"),
-              onTap: () {
-                setState(() => _valdFiltrering = Filtrering.klara);
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.radio_button_unchecked,
-                  color: Colors.orange),
-              title: const Text("Ej avklarade mål"),
-              onTap: () {
-                setState(() => _valdFiltrering = Filtrering.ejKlara);
-                Navigator.pop(context);
-              },
-            ),
-          ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: MalListaView(filtrering: _valdFiltrering),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: const Color(0xFF8CA1DE),
-        onPressed: () async {
-          await Navigator.push(
-              context, MaterialPageRoute(builder: (_) => const SkapaMalSida()));
-        },
-        label: const Text("Lägg till mål"),
-        icon: const Icon(Icons.add, color: Colors.white),
-      ),
+      body: MalListaView(filtrering: filtrering),
     );
   }
-
-  String _getTitel() {
-    switch (_valdFiltrering) {
-      case Filtrering.klara:
-        return "Avklarade mål";
-      case Filtrering.ejKlara:
-        return "Ej avklarade mål";
-      default:
-        return "Dina mål";
-    }
-  }
 }
-
-enum Filtrering { alla, klara, ejKlara }
 
 class MalListaView extends StatelessWidget {
   final Filtrering filtrering;
@@ -97,74 +141,78 @@ class MalListaView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final malProvider = Provider.of<MalProvider>(context);
-    final allaMal = malProvider.malLista;
+    return Consumer<MalProvider>(
+      builder: (context, malProvider, child) {
+        final allaMal = malProvider.malLista;
 
-    // Filtrering
-    final filtrerad = switch (filtrering) {
-      Filtrering.klara => allaMal.where((m) => m.klar).toList(),
-      Filtrering.ejKlara => allaMal.where((m) => !m.klar).toList(),
-      _ => allaMal,
-    };
+        // 🔍 Filtrera målen efter status
+        final filtrerad = switch (filtrering) {
+          Filtrering.klara => allaMal.where((m) => m.klar).toList(),
+          Filtrering.ejKlara => allaMal.where((m) => !m.klar).toList(),
+          _ => allaMal,
+        };
 
-    final dagsMal = filtrerad.where((m) => m.typ == 'Dagsmål').toList();
-    final veckMal = filtrerad.where((m) => m.typ == 'Veckomål').toList();
+        final dagsMal = filtrerad.where((m) => m.typ == 'Dagsmål').toList();
+        final veckMal = filtrerad.where((m) => m.typ == 'Veckomål').toList();
 
-    dagsMal.sort((a, b) =>
-        (a.datum ?? DateTime.now()).compareTo(b.datum ?? DateTime.now()));
-    veckMal.sort((a, b) =>
-        (a.datum ?? DateTime.now()).compareTo(b.datum ?? DateTime.now()));
+        // Sortera
+        dagsMal.sort((a, b) =>
+            (a.datum ?? DateTime.now()).compareTo(b.datum ?? DateTime.now()));
+        veckMal.sort((a, b) =>
+            (a.datum ?? DateTime.now()).compareTo(b.datum ?? DateTime.now()));
 
-    final grupperadeVeckor = <int, List<Mal>>{};
-    for (var mal in veckMal) {
-      grupperadeVeckor.putIfAbsent(mal.vecka, () => []).add(mal);
-    }
+        final grupperadeVeckor = <int, List<Mal>>{};
+        for (var mal in veckMal) {
+          grupperadeVeckor.putIfAbsent(mal.vecka, () => []).add(mal);
+        }
 
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const Text(
-          "Dagens mål",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        if (dagsMal.isEmpty)
-          const Text("Inga dagsmål", style: TextStyle(color: Colors.grey))
-        else
-          ...dagsMal.map(
-            (mal) => GoalItem(
-              mal: mal,
-              index: malProvider.malLista.indexOf(mal),
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            const Text(
+              "Dagens mål",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-          ),
-        const SizedBox(height: 16),
-        const Text(
-          "Veckomål",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        if (grupperadeVeckor.isEmpty)
-          const Text("Inga veckomål", style: TextStyle(color: Colors.grey))
-        else
-          ...grupperadeVeckor.entries.map((entry) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Vecka ${entry.key}",
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Color(0xFF8CA1DE))),
-                const SizedBox(height: 4),
-                ...entry.value.map((mal) => GoalItem(
-                      mal: mal,
-                      index: malProvider.malLista.indexOf(mal),
-                    )),
-                const SizedBox(height: 12),
-              ],
-            );
-          }),
-      ],
+            const SizedBox(height: 8),
+            if (dagsMal.isEmpty)
+              const Text("Inga dagsmål", style: TextStyle(color: Colors.grey))
+            else
+              ...dagsMal.map(
+                (mal) => GoalItem(
+                  mal: mal,
+                  index: malProvider.malLista.indexOf(mal),
+                ),
+              ),
+            const SizedBox(height: 16),
+            const Text(
+              "Veckomål",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            if (grupperadeVeckor.isEmpty)
+              const Text("Inga veckomål", style: TextStyle(color: Colors.grey))
+            else
+              ...grupperadeVeckor.entries.map((entry) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Vecka ${entry.key}",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Color(0xFF8CA1DE))),
+                    const SizedBox(height: 4),
+                    ...entry.value.map((mal) => GoalItem(
+                          mal: mal,
+                          index: malProvider.malLista.indexOf(mal),
+                        )),
+                    const SizedBox(height: 12),
+                  ],
+                );
+              }),
+          ],
+        );
+      },
     );
   }
 }
@@ -189,12 +237,21 @@ class GoalItem extends StatelessWidget {
       child: ListTile(
         leading: Checkbox(
           value: mal.klar,
-          onChanged: (_) => malProvider.toggleKlar(index),
           activeColor: const Color(0xFF8CA1DE),
+          onChanged: (_) {
+            // ✅ Uppdatera status
+            malProvider.toggleKlar(index);
+            // 🔁 Detta triggar ombyggnad av UI och gör att målet försvinner
+            malProvider.notifyListeners();
+          },
         ),
         title: Text(
           mal.titel,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: mal.klar ? Colors.grey : Colors.black,
+            decoration: mal.klar ? TextDecoration.lineThrough : null,
+          ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,6 +272,7 @@ class GoalItem extends StatelessWidget {
           onSelected: (value) {
             if (value == 'radera') {
               malProvider.taBortMal(index);
+              malProvider.notifyListeners();
             } else if (value == 'redigera') {
               _visaRedigeringsDialog(context, malProvider, mal, index);
             }
@@ -232,10 +290,8 @@ class GoalItem extends StatelessWidget {
             ),
             const PopupMenuItem(
               value: 'radera',
-              child: Text(
-                "Radera mål",
-                style: TextStyle(color: Colors.red),
-              ),
+              child: Text("Radera mål",
+                  style: TextStyle(color: Colors.red, fontSize: 14)),
             ),
           ],
         ),
@@ -278,8 +334,8 @@ class GoalItem extends StatelessWidget {
               provider.notifyListeners();
               Navigator.pop(context);
             },
-            child:
-                const Text("Spara", style: TextStyle(color: Color(0xFF8CA1DE))),
+            child: const Text("Spara",
+                style: TextStyle(color: Color(0xFF8CA1DE))),
           ),
         ],
       ),

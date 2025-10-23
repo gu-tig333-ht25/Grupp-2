@@ -31,11 +31,10 @@ void main() async {
         ChangeNotifierProvider(create: (_) => TimerProvider()),
         ChangeNotifierProvider(create: (_) => SessionProvider()),
       ],
-      child: const MyApp(), // MyApp sköter routing och AuthGate
+      child: const MyApp(),
     ),
   );
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -46,8 +45,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Dialogisk Läsning',
       theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
         useMaterial3: true,
         scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
       ),
@@ -128,8 +126,7 @@ class DialoglasningsApp extends StatelessWidget {
       title: 'Dialogisk Läsning',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
         useMaterial3: true,
         scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
       ),
@@ -138,7 +135,7 @@ class DialoglasningsApp extends StatelessWidget {
   }
 }
 
-// HUVUDNAVIGATOR MED BOTTOM BAR
+// HUVUDNAVIGATOR MED BOTTOM BAR (utan Forum)
 class HuvudNavigator extends StatefulWidget {
   const HuvudNavigator({super.key});
 
@@ -152,7 +149,6 @@ class _HuvudNavigatorState extends State<HuvudNavigator> {
   final List<Widget> _sidor = const [
     StartSida(),
     KalenderSida(),
-    ForumSida(),
   ];
 
   void _onItemTapped(int index) {
@@ -175,7 +171,6 @@ class _HuvudNavigatorState extends State<HuvudNavigator> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Start"),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: "Kalender"),
-          BottomNavigationBarItem(icon: Icon(Icons.family_restroom), label: "Forum"),
         ],
       ),
     );
@@ -200,7 +195,9 @@ class StartSida extends StatelessWidget {
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => const InstallningarSida()));
+                context,
+                MaterialPageRoute(builder: (context) => const InstallningarSida()),
+              );
             },
           ),
         ],
@@ -211,7 +208,6 @@ class StartSida extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Idag-ruta med starta session-knapp
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF8CA1DE),
@@ -228,7 +224,10 @@ class StartSida extends StatelessWidget {
                             TextSpan(
                               text: "📅 Idag: $idagDatum\n",
                               style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                             const TextSpan(
                               text:
@@ -240,8 +239,6 @@ class StartSida extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-
-                    // Knapp
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.2,
                       child: ElevatedButton(
@@ -269,10 +266,7 @@ class StartSida extends StatelessWidget {
                   ],
                 ),
               ),
-
               const SizedBox(height: 24),
-
-              // Övriga knappar på startsidan
               _buildNavButton(context, "🎯 Mål", const MalSida()),
               const SizedBox(height: 16),
               _buildNavButton(context, "⭐ Sessioner", const SessionerSida()),
@@ -337,19 +331,16 @@ class DagensSessionSida extends StatelessWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                // Hämta lästiden från TimerProvider innan navigering till BetygSida
                 final timerProvider = Provider.of<TimerProvider>(context, listen: false);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    // Antar att BetygSida nu tar en `readTime` som argument
                     builder: (_) => BetygSida(readTime: timerProvider.formattedTime),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
-              child:
-                const Text("⭐ Betygsätt dagens session", style: TextStyle(color: Colors.white)),
+              child: const Text("⭐ Betygsätt dagens session", style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -375,33 +366,6 @@ class KalenderSida extends StatelessWidget {
   }
 }
 
-// FAMILJEFORUM
-class ForumSida extends StatelessWidget {
-  const ForumSida({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Familjeforum"),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF8CA1DE),
-        foregroundColor: Colors.white,
-      ),
-      body: const Center(
-        child: Padding(
-          padding: EdgeInsets.all(24.0),
-          child: Text(
-            "Här kan familjer dela erfarenheter och tips om dialogisk läsning.",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // INSTÄLLNINGAR
 class InstallningarSida extends StatelessWidget {
   const InstallningarSida({super.key});
@@ -418,23 +382,21 @@ class InstallningarSida extends StatelessWidget {
     );
   }
 }
-class BetygSida extends StatelessWidget {
-  final String readTime; 
 
-  const BetygSida({super.key, required this.readTime}); 
+class BetygSida extends StatelessWidget {
+  final String readTime;
+  const BetygSida({super.key, required this.readTime});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Betygsätt dagens läsning")),
-      body: Center(
-        child: Text("Du har läst i: $readTime"), 
-      ),
+      body: Center(child: Text("Du har läst i: $readTime")),
     );
   }
 }
-// ÖVRIGA UNDERSIDOR
 
+// OM BOKEN
 class OmBokenSida extends StatelessWidget {
   const OmBokenSida({super.key});
 
@@ -446,4 +408,3 @@ class OmBokenSida extends StatelessWidget {
     );
   }
 }
-
