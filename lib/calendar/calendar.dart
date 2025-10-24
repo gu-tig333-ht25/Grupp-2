@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:provider/provider.dart';
 import 'calendar_provider.dart';
@@ -35,7 +36,7 @@ class _CalendarPageState extends State<CalendarPage> {
             lastDay: DateTime.utc(2030, 12, 31),
             focusedDay: _focusedDay,
             selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-            eventLoader: calendarProvider.getEventsForDay,
+            eventLoader: (day) => calendarProvider.getEventsForDay(day),
             startingDayOfWeek: StartingDayOfWeek.monday,
             calendarStyle: const CalendarStyle(
               todayDecoration: BoxDecoration(
@@ -73,8 +74,14 @@ class _CalendarPageState extends State<CalendarPage> {
                   ...events.map((event) => Card(
                         color: const Color(0xFF8CA1DE),
                         child: ListTile(
-                          title: Text(event,
-                              style: const TextStyle(color: Colors.white)),
+                          title: Text(
+                            event.title,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          subtitle: Text(
+                            "🕒 ${_formatTime24(event.time)}",
+                            style: const TextStyle(color: Colors.white70),
+                          ),
                           trailing: IconButton(
                             icon: const Icon(Icons.delete, color: Colors.white),
                             onPressed: () {
@@ -97,43 +104,114 @@ class _CalendarPageState extends State<CalendarPage> {
     );
   }
 
-  // ---- SAFE ADD EVENT DIALOG ----
+  // ✅ Convert TimeOfDay → 24-hour formatted string
+  String _formatTime24(TimeOfDay time) {
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    return DateFormat.Hm('sv_SE').format(dt); // HH:mm format (24h)
+  }
+
+  // ---- ADD EVENT DIALOG WITH SCROLLABLE TIME PICKER ----
   void _showAddEventDialog(
       BuildContext context, CalendarProvider calendarProvider) {
     final controller = TextEditingController();
+    TimeOfDay? selectedTime;
 
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text("Lägg till händelse"),
-        content: TextField(
-          controller: controller,
-          decoration:
-              const InputDecoration(hintText: "Beskrivning av händelse"),
-        ),
-        actions: [
-          TextButton(
-            child: const Text("Avbryt"),
-            onPressed: () {
-              if (Navigator.of(dialogContext).canPop()) {
-                Navigator.of(dialogContext).pop();
-              }
-            },
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text("Lägg till händelse"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  hintText: "Beskrivning av händelse",
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.access_time),
+                label: Text(selectedTime == null
+                    ? "Välj tid"
+                    : "Vald tid: ${_formatTime24(selectedTime!)}"),
+                onPressed: () async {
+                  // Open scrollable time picker (Cupertino-style)
+                  await showCupertinoModalPopup(
+                    context: dialogContext,
+                    builder: (_) => Container(
+                      height: 250,
+                      color: Colors.white,
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 200,
+                            child: CupertinoDatePicker(
+                              mode: CupertinoDatePickerMode.time,
+                              use24hFormat: true, // 24-hour format
+                              initialDateTime: DateTime.now(),
+                              onDateTimeChanged: (DateTime dateTime) {
+                                setState(() {
+                                  selectedTime = TimeOfDay(
+                                    hour: dateTime.hour,
+                                    minute: dateTime.minute,
+                                  );
+                                });
+                              },
+                            ),
+                          ),
+                          TextButton(
+                            child: const Text(
+                              "Klar",
+                              style: TextStyle(
+                                color: Color(0xFF8CA1DE),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-          ElevatedButton(
-            child: const Text("Lägg till"),
-            onPressed: () {
-              final text = controller.text.trim();
-              if (text.isNotEmpty) {
-                calendarProvider.addEvent(
-                    _selectedDay ?? DateTime.now(), text);
+          actions: [
+            TextButton(
+              child: const Text("Avbryt"),
+              onPressed: () {
                 if (Navigator.of(dialogContext).canPop()) {
                   Navigator.of(dialogContext).pop();
                 }
-              }
-            },
-          ),
-        ],
+              },
+            ),
+            ElevatedButton(
+              child: const Text("Lägg till"),
+              onPressed: () {
+                final text = controller.text.trim();
+                if (text.isNotEmpty && selectedTime != null) {
+                  calendarProvider.addEvent(
+                    _selectedDay ?? DateTime.now(),
+                    CalendarEvent(time: selectedTime!, title: text),
+                  );
+                  if (Navigator.of(dialogContext).canPop()) {
+                    Navigator.of(dialogContext).pop();
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Ange både titel och tid för händelsen"),
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

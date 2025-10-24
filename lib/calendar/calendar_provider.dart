@@ -1,34 +1,42 @@
 import 'package:flutter/material.dart';
 
-class CalendarProvider extends ChangeNotifier {
-  final Map<DateTime, List<String>> _events = {};
+class CalendarEvent {
+  final TimeOfDay time;
+  final String title;
 
-  Map <DateTime, List<String>> get events => _events;
+  CalendarEvent({required this.time, required this.title});
+}
+
+class CalendarProvider extends ChangeNotifier {
+  final Map<DateTime, List<CalendarEvent>> _events = {};
+
+  Map<DateTime, List<CalendarEvent>> get events => _events;
 
   DateTime _normalize(DateTime date) =>
-    DateTime(date.year, date.month, date.day);
+      DateTime(date.year, date.month, date.day);
 
-  List<String> getEventsForDay(DateTime day){
+  List<CalendarEvent> getEventsForDay(DateTime day) {
     final normalized = _normalize(day);
-    return _events[normalized] ?? [];
+    final list = _events[normalized] ?? [];
+    // Sort by time so they appear chronologically
+    list.sort((a, b) =>
+        a.time.hour * 60 + a.time.minute - (b.time.hour * 60 + b.time.minute));
+    return list;
   }
 
-  void addEvent(DateTime day, String event) {
+  void addEvent(DateTime day, CalendarEvent event) {
     final normalized = _normalize(day);
-    if (_events[normalized] == null) {
-      _events[normalized] = [];
-    } 
+    _events.putIfAbsent(normalized, () => []);
     _events[normalized]!.add(event);
     notifyListeners();
   }
 
-  void removeEvent(DateTime day, String event) {
+  void removeEvent(DateTime day, CalendarEvent event) {
     final normalized = _normalize(day);
     _events[normalized]?.remove(event);
     if (_events[normalized]?.isEmpty ?? false) {
       _events.remove(normalized);
     }
     notifyListeners();
-
   }
 }
