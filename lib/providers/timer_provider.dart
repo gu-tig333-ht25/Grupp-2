@@ -1,12 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../views/betyg.dart'; // Behövs för att navigera till BetygSida
-
-// Notera: Om du navigerar till HuvudNavigator i BetygSida efter sparning,
-// behöver du inte importera HuvudNavigator här. Om du navigerar direkt
-// till HuvudNavigator härifrån (vilket du inte gör), skulle du behöva en import.
+import '../views/betyg.dart';
 
 class TimerProvider extends ChangeNotifier {
   int _seconds = 0;
@@ -32,13 +27,7 @@ class TimerProvider extends ChangeNotifier {
       _timer?.cancel();
       _isRunning = false;
 
-      // Tidigare: Körde _showSessionSlutDialog här om tiden var lång nog
-      // Vi behåller logiken för att pausa men dialogen kan skötas i endSession
-      // eller som en separat knapp/händelse.
-      // Här väljer vi att hålla timern pausad utan dialog för att undvika dubbelhantering.
       if (_seconds >= 600) {
-        // Kör dialogen som en hint, men avbryt inte timern helt än.
-        // Vi behåller _showSessionSlutDialog för att inte bryta funktionalitet:
         _showSessionSlutDialog(context);
       }
     } else {
@@ -86,7 +75,6 @@ class TimerProvider extends ChangeNotifier {
                   builder: (_) => BetygSida(readTime: sessionTime),
                 ),
               );
-              // Notera: resetTimer() hanteras nu i BetygSida när man sparar.
             },
           ),
         ],

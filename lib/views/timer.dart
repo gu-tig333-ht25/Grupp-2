@@ -11,8 +11,6 @@ class TimerSida extends StatelessWidget {
     // Använd Provider.of för att lyssna på ändringar från TimerProvider
     final timerProvider = Provider.of<TimerProvider>(context);
     
-    // Anropa checkNewDay. Måste ligga här i build-metoden.
-    // Låt Providern sköta logiken för att undvika onödiga anrop.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       timerProvider.checkNewDay();
     });
