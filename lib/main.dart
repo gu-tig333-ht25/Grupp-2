@@ -6,16 +6,14 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'firebase_options.dart';
 import 'pages/signup.dart';
 import 'pages/login.dart';
-import 'mal_sida.dart';
+import 'views/mal_sida.dart';
 import 'package:provider/provider.dart';
-import 'mal_provider.dart';
+import 'providers/mal_provider.dart';
 import 'timer.dart';
-import 'session_provider.dart';
-import 'betyg.dart';
-import 'sessioner.dart';
+import 'providers/session_provider.dart';
+import 'views/betyg.dart';
+import 'views/sessioner.dart';
 import 'views/resurser_view.dart';
-import 'timer.dart';
-import 'session_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

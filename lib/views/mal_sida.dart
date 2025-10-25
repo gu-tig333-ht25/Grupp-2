@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'mal_provider.dart';
+import '../providers/mal_provider.dart';
 import 'skapa_mal_sida.dart';
 
 class MalSida extends StatefulWidget {
