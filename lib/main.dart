@@ -9,11 +9,12 @@ import 'pages/login.dart';
 import 'views/mal_sida.dart';
 import 'package:provider/provider.dart';
 import 'providers/mal_provider.dart';
-import 'timer.dart';
+import 'views/timer.dart';
 import 'providers/session_provider.dart';
-import 'views/betyg.dart';
 import 'views/sessioner.dart';
 import 'views/resurser_view.dart';
+import 'providers/timer_provider.dart';
+import 'views/dagens_session.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -230,7 +231,7 @@ class StartSida extends StatelessWidget {
                             ),
                             const TextSpan(
                               text:
-                                  "Bok: Bamse och tjuvjakten\nLästid: 10 minuter\nSe video: Hur man läser interaktivt",
+                                  "Bok: Bamse och tjuvjakten\nLästid: 10 minuter",
                               style: TextStyle(fontSize: 14, color: Colors.white),
                             ),
                           ],
@@ -300,62 +301,6 @@ class StartSida extends StatelessWidget {
   }
 }
 
-// DAGENS SESSION-SIDA
-class DagensSessionSida extends StatelessWidget {
-  const DagensSessionSida({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Dagens session"),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF8CA1DE),
-        foregroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8CA1DE)),
-              child: const Text("🎥 Se dagens video", style: TextStyle(color: Colors.white)),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => const TimerSida()));
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: const Text("⏱ Starta timer", style: TextStyle(color: Colors.white)),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Hämta lästiden från TimerProvider innan navigering till BetygSida
-                final timerProvider = Provider.of<TimerProvider>(context, listen: false);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    // Antar att BetygSida nu tar en `readTime` som argument
-                    builder: (_) => BetygSida(readTime: timerProvider.formattedTime),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
-              child:
-                const Text("⭐ Betygsätt dagens session", style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 // KALENDER
 class KalenderSida extends StatelessWidget {
   const KalenderSida({super.key});
@@ -416,21 +361,7 @@ class InstallningarSida extends StatelessWidget {
     );
   }
 }
-class BetygSida extends StatelessWidget {
-  final String readTime; 
 
-  const BetygSida({super.key, required this.readTime}); 
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Betygsätt dagens läsning")),
-      body: Center(
-        child: Text("Du har läst i: $readTime"), 
-      ),
-    );
-  }
-}
 // ÖVRIGA UNDERSIDOR
 
 class OmBokenSida extends StatelessWidget {
@@ -444,4 +375,3 @@ class OmBokenSida extends StatelessWidget {
     );
   }
 }
-
