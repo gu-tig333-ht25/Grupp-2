@@ -37,7 +37,7 @@ class SessionerSida extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => BetygSida(readTime: s.lastReadTime),
+                      builder: (_) => BetygSida(readTime: s.lastReadTime, datum: s.datum,),
                     ),
                   );
                 },
