@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'betyg.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TimerProvider extends ChangeNotifier {
   int _seconds = 0;
@@ -12,6 +14,9 @@ class TimerProvider extends ChangeNotifier {
 
   int get seconds => _seconds;
   bool get isRunning => _isRunning;
+
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   void checkNewDay() {
     String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
@@ -48,11 +53,29 @@ class TimerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> saveTimerSessionToFirestore(String formattedTime) async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      await _db
+        .collection('users')
+        .doc(user.uid)
+        .collection('sessions')
+        .doc(today)
+        .set({
+          'readtime':formattedTime,
+          'timestamp': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+    }
+  }
+
   void endSession(BuildContext context) {
     _timer?.cancel();
     _isRunning = false;
     
     final sessionTime = formattedTime;
+
+    saveTimerSessionToFirestore(sessionTime);
 
     // Visa popup innan man går till Betygsätt-sidan
     showDialog(

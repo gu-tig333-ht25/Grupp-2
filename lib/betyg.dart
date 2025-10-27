@@ -1,7 +1,10 @@
+//import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'session_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart'; 
 
 class BetygSida extends StatefulWidget {
   final String? readTime; // Lästid från timer
@@ -17,6 +20,9 @@ class _BetygSidaState extends State<BetygSida> {
   int uppmarksamhet = 0;
   TextEditingController anteckningController = TextEditingController();
 
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   void initState() {
     super.initState();
@@ -29,6 +35,25 @@ class _BetygSidaState extends State<BetygSida> {
       kvalitet = session.kvalitet;
       uppmarksamhet = session.uppmarksamhet;
       anteckningController.text = session.anteckning;
+    }
+  }
+
+  Future<void> saveSessionToFirestore(Session session) async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      await _db
+        .collection('users')
+        .doc(user.uid)
+        .collection('sessions')
+        .doc(session.datum)
+        .set({
+          'engagemang': session.engagemang,
+          'kvalitet': session.kvalitet,
+          'uppmarksamhet': session.uppmarksamhet,
+          'anteckning': session.anteckning,
+          'lastReadTime': session.lastReadTime,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
     }
   }
 
@@ -87,7 +112,8 @@ class _BetygSidaState extends State<BetygSida> {
               const SizedBox(height: 24),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
+                  // ----- // 
+                  onPressed: () async {
                     final session = Session(
                       datum: today,
                       engagemang: engagemang,
@@ -96,10 +122,23 @@ class _BetygSidaState extends State<BetygSida> {
                       anteckning: anteckningController.text,
                       lastReadTime: widget.readTime ?? '00:00',
                     );
+
                     Provider.of<SessionProvider>(context, listen: false)
                         .addOrUpdateSession(session);
+
+                    await saveSessionToFirestore(session);
+
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Session sparad i firebase'),
+                        ),
+                      );
+                    }
+
                     Navigator.pop(context);
                   },
+
                   style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF8CA1DE),
                       padding: const EdgeInsets.symmetric(
