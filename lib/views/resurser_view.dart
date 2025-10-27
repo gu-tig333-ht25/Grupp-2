@@ -279,7 +279,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                           SizedBox(height: 8), //Mellanrum mellan titel och video
                           YoutubePlayer(
                             controller: YoutubePlayerController(
-                              initialVideoId: '6o4Le9nSQOA&t=162s', //YouTube video-ID
+                              initialVideoId: '-708YcjfVh4', //YouTube video-ID
                               flags: YoutubePlayerFlags(
                                 autoPlay: false, //Klippen spelas inte automatiskt
                               ),
@@ -293,7 +293,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                           SizedBox(height: 8), //Mellanrum mellan titel och video
                           YoutubePlayer(
                             controller: YoutubePlayerController(
-                              initialVideoId: 'KZBwjlR6KKE&t=32s', //YouTube video-ID
+                              initialVideoId: 'F2Y6hg4Twi4', //YouTube video-ID
                               flags: YoutubePlayerFlags(
                                 autoPlay: false, //Klippen spelas inte automatiskt
                               ),
