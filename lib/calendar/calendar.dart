@@ -4,6 +4,8 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:provider/provider.dart';
 import 'calendar_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -15,6 +17,15 @@ class CalendarPage extends StatefulWidget {
 class _CalendarPageState extends State<CalendarPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<CalendarProvider>(context, listen: false)
+        .loadEventsFromFirestore();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +202,7 @@ class _CalendarPageState extends State<CalendarPage> {
             ),
             ElevatedButton(
               child: const Text("Lägg till"),
-              onPressed: () {
+              onPressed: () async {
                 final text = controller.text.trim();
                 if (text.isNotEmpty && selectedTime != null) {
                   calendarProvider.addEvent(
