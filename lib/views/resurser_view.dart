@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class ResurserSida extends StatefulWidget {
   const ResurserSida({super.key});
@@ -251,6 +252,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                       ),
                     ),
                   ),
+
                   //Innehåll för videos tabben-----------------------------------
                   if (_videoExpanded)
                     Container(
@@ -258,19 +260,45 @@ class _ResurserSidaState extends State<ResurserSida> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildVideoItem(
-                            "Introduktion till dialogisk läsning",
-                            "5:30",
+                          // Video 1 titel och spelare
+                          Text("Introduktion till dialogisk läsning", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 8), //Mellanrum mellan titel och video
+                          YoutubePlayer(
+                            controller: YoutubePlayerController(
+                              initialVideoId: 'tpb_w4qXrB8', //youTube video-ID
+                              flags: YoutubePlayerFlags(
+                                autoPlay: false, //Klippen spelas inte automatiskt
+                              ),
+                            ),
+                            showVideoProgressIndicator: true, //När videon laddar visas en detta
                           ),
-                          const SizedBox(height: 16),
-                          _buildVideoItem(
-                            "Exempel på lässtund",
-                            "8:45",
+                          SizedBox(height: 24), //Mellanrum mellan de olika videorna 
+
+                          //Video 2 titel och spelare
+                          Text("Exempel på lässtund", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 8), //Mellanrum mellan titel och video
+                          YoutubePlayer(
+                            controller: YoutubePlayerController(
+                              initialVideoId: '-708YcjfVh4', //YouTube video-ID
+                              flags: YoutubePlayerFlags(
+                                autoPlay: false, //Klippen spelas inte automatiskt
+                              ),
+                            ),
+                            showVideoProgressIndicator: true,
                           ),
-                          const SizedBox(height: 16),
-                          _buildVideoItem(
-                            "Tips för engagerande läsning",
-                            "6:15",
+                          SizedBox(height: 24), //Mellanrum mellan de olika videorna
+
+                          //Video 3 titel och spelare
+                          Text("Tips för dialogisk läsning", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 8), //Mellanrum mellan titel och video
+                          YoutubePlayer(
+                            controller: YoutubePlayerController(
+                              initialVideoId: 'F2Y6hg4Twi4', //YouTube video-ID
+                              flags: YoutubePlayerFlags(
+                                autoPlay: false, //Klippen spelas inte automatiskt
+                              ),
+                            ),
+                            showVideoProgressIndicator: true,
                           ),
                         ],
                       ),
@@ -374,53 +402,4 @@ class _ResurserSidaState extends State<ResurserSida> {
     );
   }
 
-  Widget _buildVideoItem(String title, String duration) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 100,
-            height: 60,
-            decoration: BoxDecoration(
-              color: const Color(0xFF8CA1DE),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.play_circle_outline,
-              color: Color(0xFF8CA1DE),
-              size: 32,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  duration,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

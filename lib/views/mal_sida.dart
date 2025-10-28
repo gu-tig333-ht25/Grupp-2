@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'mal_provider.dart';
+import '../providers/mal_provider.dart';
 import 'skapa_mal_sida.dart';
+
+// --- Filtreringstyper ---
+enum Filtrering { alla, klara, ejKlara }
 
 class MalSida extends StatefulWidget {
   const MalSida({super.key});
@@ -13,15 +16,57 @@ class MalSida extends StatefulWidget {
 class _MalSidaState extends State<MalSida> {
   Filtrering _valdFiltrering = Filtrering.alla;
 
+@override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    Provider.of<MalProvider>(context, listen: false).loadGoalsFromFirestore();
+  });
+}
+
+
+  String _getTitel() {
+    switch (_valdFiltrering) {
+      case Filtrering.klara:
+        return "Avklarade mål";
+      case Filtrering.ejKlara:
+        return "Ej avklarade mål";
+      default:
+        return "Dina mål";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF9E6),
       appBar: AppBar(
-        title: Text(_getTitel()),
+        title: Text(_getTitel()), 
         backgroundColor: const Color(0xFF8CA1DE),
         foregroundColor: Colors.white,
+        
+        // --- ÄNDRING 1: Lägg tillbaks tillbakapilen manuellt i leading ---
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+
+        // --- ÄNDRING 2: Flytta Drawer-ikonen till actions och öppna den manuellt ---
+        actions: [
+          Builder( // Använd Builder för att få en context som är barn till Scaffold
+            builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer(); // Öppnar sidomenyn
+                },
+              );
+            }
+          ),
+        ],
       ),
+      
+      // Drawer (sidomenyn) ligger kvar som filtreringsmekanism
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -39,6 +84,7 @@ class _MalSidaState extends State<MalSida> {
             ListTile(
               leading: const Icon(Icons.list),
               title: const Text("Alla mål"),
+              selected: _valdFiltrering == Filtrering.alla,
               onTap: () {
                 setState(() => _valdFiltrering = Filtrering.alla);
                 Navigator.pop(context);
@@ -47,15 +93,17 @@ class _MalSidaState extends State<MalSida> {
             ListTile(
               leading: const Icon(Icons.check_circle, color: Colors.green),
               title: const Text("Avklarade mål"),
+              selected: _valdFiltrering == Filtrering.klara,
               onTap: () {
                 setState(() => _valdFiltrering = Filtrering.klara);
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.radio_button_unchecked,
-                  color: Colors.orange),
+              leading:
+                  const Icon(Icons.radio_button_unchecked, color: Colors.orange),
               title: const Text("Ej avklarade mål"),
+              selected: _valdFiltrering == Filtrering.ejKlara,
               onTap: () {
                 setState(() => _valdFiltrering = Filtrering.ejKlara);
                 Navigator.pop(context);
@@ -64,43 +112,49 @@ class _MalSidaState extends State<MalSida> {
           ],
         ),
       ),
+      // Skicka det aktuella filtret till MalListaView
       body: MalListaView(filtrering: _valdFiltrering),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFF8CA1DE),
         onPressed: () async {
           await Navigator.push(
-              context, MaterialPageRoute(builder: (_) => const SkapaMalSida()));
+            context,
+            MaterialPageRoute(builder: (_) => const SkapaMalSida()),
+          );
+            context,
+            MaterialPageRoute(builder: (_) => const SkapaMalSida()),
+          );
         },
         label: const Text("Lägg till mål"),
         icon: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
-
-  String _getTitel() {
-    switch (_valdFiltrering) {
-      case Filtrering.klara:
-        return "Avklarade mål";
-      case Filtrering.ejKlara:
-        return "Ej avklarade mål";
-      default:
-        return "Dina mål";
-    }
-  }
 }
 
-enum Filtrering { alla, klara, ejKlara }
+// ... (MalListaView och GoalItem förblir oförändrade nedan) ...
 
 class MalListaView extends StatelessWidget {
   final Filtrering filtrering;
   const MalListaView({super.key, required this.filtrering});
 
   @override
+  State<MalListaView> createState() => _MalListaViewState();
+}
+
+class _MalListaViewState extends State<MalListaView> {
+  @override
+  void initState() {
+    super.initState();
+    final malProvider = Provider.of<MalProvider>(context, listen: false);
+    malProvider.fetchMal();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final malProvider = Provider.of<MalProvider>(context);
+    final malProvider = Provider.of<MalProvider>(context); 
     final allaMal = malProvider.malLista;
 
-    // Filtrering
     final filtrerad = switch (filtrering) {
       Filtrering.klara => allaMal.where((m) => m.klar).toList(),
       Filtrering.ejKlara => allaMal.where((m) => !m.klar).toList(),
@@ -115,9 +169,10 @@ class MalListaView extends StatelessWidget {
     veckMal.sort((a, b) =>
         (a.datum ?? DateTime.now()).compareTo(b.datum ?? DateTime.now()));
 
-    final grupperadeVeckor = <int, List<Mal>>{};
+    final grupperadeVeckor = <int, List<dynamic>>{};
     for (var mal in veckMal) {
-      grupperadeVeckor.putIfAbsent(mal.vecka, () => []).add(mal);
+      final vecka = (mal.vecka as int?) ?? 0; 
+      grupperadeVeckor.putIfAbsent(vecka, () => []).add(mal);
     }
 
     return ListView(
@@ -170,14 +225,14 @@ class MalListaView extends StatelessWidget {
 }
 
 class GoalItem extends StatelessWidget {
-  final Mal mal;
+  final dynamic mal;
   final int index;
 
   const GoalItem({super.key, required this.mal, required this.index});
 
   @override
   Widget build(BuildContext context) {
-    final malProvider = Provider.of<MalProvider>(context, listen: false);
+    final malProvider = Provider.of<MalProvider>(context, listen: false); 
 
     String formatDatum(DateTime? d) {
       if (d == null) return '';
@@ -189,12 +244,16 @@ class GoalItem extends StatelessWidget {
       child: ListTile(
         leading: Checkbox(
           value: mal.klar,
-          onChanged: (_) => malProvider.toggleKlar(index),
           activeColor: const Color(0xFF8CA1DE),
+          onChanged: (_) => malProvider.toggleKlar(index), 
         ),
         title: Text(
           mal.titel,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: mal.klar ? Colors.grey : Colors.black, 
+            decoration: mal.klar ? TextDecoration.lineThrough : null,
+          ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,10 +291,8 @@ class GoalItem extends StatelessWidget {
             ),
             const PopupMenuItem(
               value: 'radera',
-              child: Text(
-                "Radera mål",
-                style: TextStyle(color: Colors.red),
-              ),
+              child: Text("Radera mål",
+                  style: TextStyle(color: Colors.red, fontSize: 14)),
             ),
           ],
         ),
@@ -244,7 +301,7 @@ class GoalItem extends StatelessWidget {
   }
 
   void _visaRedigeringsDialog(
-      BuildContext context, MalProvider provider, Mal mal, int index) {
+      BuildContext context, MalProvider provider, dynamic mal, int index) {
     final titelController = TextEditingController(text: mal.titel);
     final anteckningController = TextEditingController(text: mal.anteckning);
 
@@ -273,13 +330,15 @@ class GoalItem extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              mal.titel = titelController.text;
-              mal.anteckning = anteckningController.text;
-              provider.notifyListeners();
+              provider.uppdateraMalDetaljer(
+                index,
+                titelController.text,
+                anteckningController.text,
+              );
               Navigator.pop(context);
             },
-            child:
-                const Text("Spara", style: TextStyle(color: Color(0xFF8CA1DE))),
+            child: const Text("Spara",
+                style: TextStyle(color: Color(0xFF8CA1DE))),
           ),
         ],
       ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'session_provider.dart';
+import '../providers/session_provider.dart';
 import 'betyg.dart';
 
 class SessionerSida extends StatelessWidget {
@@ -37,7 +37,7 @@ class SessionerSida extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => BetygSida(readTime: s.lastReadTime),
+                      builder: (_) => BetygSida(readTime: s.lastReadTime, datum: s.datum,),
                     ),
                   );
                 },

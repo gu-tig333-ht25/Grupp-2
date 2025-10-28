@@ -1,11 +1,16 @@
+//import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'session_provider.dart';
+import '../providers/session_provider.dart';
+import '../providers/timer_provider.dart';
+import '../main.dart';
 
 class BetygSida extends StatefulWidget {
   final String? readTime; // Lästid från timer
-  const BetygSida({super.key, this.readTime});
+  final String? datum;
+  
+  const BetygSida({super.key, this.readTime, this.datum});
 
   @override
   State<BetygSida> createState() => _BetygSidaState();
@@ -16,19 +21,44 @@ class _BetygSidaState extends State<BetygSida> {
   int kvalitet = 0;
   int uppmarksamhet = 0;
   TextEditingController anteckningController = TextEditingController();
+  String displayReadTime = '00:00';
 
   @override
   void initState() {
     super.initState();
-    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final targetDate = widget.datum ?? DateFormat('yyyy-MM-dd').format(DateTime.now());
     final session = Provider.of<SessionProvider>(context, listen: false)
-        .getSessionForDate(today);
+        .getSessionForDate(targetDate);
 
     if (session != null) {
       engagemang = session.engagemang;
       kvalitet = session.kvalitet;
       uppmarksamhet = session.uppmarksamhet;
       anteckningController.text = session.anteckning;
+      displayReadTime = session.lastReadTime;
+    }
+    
+    else {
+      displayReadTime = widget.readTime ?? '00:00';
+    }
+  }
+
+  Future<void> saveSessionToFirestore(Session session) async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      await _db
+        .collection('users')
+        .doc(user.uid)
+        .collection('sessions')
+        .doc(session.datum)
+        .set({
+          'engagemang': session.engagemang,
+          'kvalitet': session.kvalitet,
+          'uppmarksamhet': session.uppmarksamhet,
+          'anteckning': session.anteckning,
+          'lastReadTime': session.lastReadTime,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
     }
   }
 
@@ -63,7 +93,7 @@ class _BetygSidaState extends State<BetygSida> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Lästid idag: ${widget.readTime ?? '00:00'}",
+              Text("Lästid idag: $displayReadTime",
                   style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 24),
               starRating("Engagemang", engagemang, (v) {
@@ -87,19 +117,30 @@ class _BetygSidaState extends State<BetygSida> {
               const SizedBox(height: 24),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
+                  // ----- // 
+                  onPressed: () async {
                     final session = Session(
                       datum: today,
                       engagemang: engagemang,
                       kvalitet: kvalitet,
                       uppmarksamhet: uppmarksamhet,
                       anteckning: anteckningController.text,
-                      lastReadTime: widget.readTime ?? '00:00',
+                      lastReadTime: displayReadTime,
                     );
+
                     Provider.of<SessionProvider>(context, listen: false)
                         .addOrUpdateSession(session);
-                    Navigator.pop(context);
+                    
+                    Provider.of<TimerProvider>(context, listen: false).resetTimer();
+
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (context) => const HuvudNavigator(),
+                      ),
+                      (Route<dynamic> route) => false, // Rensa ALLA rutter under
+                    );
                   },
+
                   style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF8CA1DE),
                       padding: const EdgeInsets.symmetric(
