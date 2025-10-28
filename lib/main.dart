@@ -12,13 +12,13 @@ import 'package:provider/provider.dart';
 import 'mal_provider.dart';
 import 'timer.dart';
 import 'session_provider.dart';
-import 'betyg.dart';
+//import 'betyg.dart';
 import 'sessioner.dart';
 import 'views/resurser_view.dart';
-import 'timer.dart';
-import 'session_provider.dart';
+//import 'timer.dart';
+//import 'session_provider.dart';
 import 'calendar/calendar_provider.dart';
-import 'calendar/calendar.dart';
+//import 'calendar/calendar.dart';
 
 
 void main() async {
