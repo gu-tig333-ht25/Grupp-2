@@ -100,8 +100,8 @@ void initState() {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.radio_button_unchecked,
-                  color: Colors.orange),
+              leading:
+                  const Icon(Icons.radio_button_unchecked, color: Colors.orange),
               title: const Text("Ej avklarade mål"),
               selected: _valdFiltrering == Filtrering.ejKlara,
               onTap: () {
@@ -121,6 +121,9 @@ void initState() {
             context,
             MaterialPageRoute(builder: (_) => const SkapaMalSida()),
           );
+            context,
+            MaterialPageRoute(builder: (_) => const SkapaMalSida()),
+          );
         },
         label: const Text("Lägg till mål"),
         icon: const Icon(Icons.add, color: Colors.white),
@@ -134,6 +137,18 @@ void initState() {
 class MalListaView extends StatelessWidget {
   final Filtrering filtrering;
   const MalListaView({super.key, required this.filtrering});
+
+  @override
+  State<MalListaView> createState() => _MalListaViewState();
+}
+
+class _MalListaViewState extends State<MalListaView> {
+  @override
+  void initState() {
+    super.initState();
+    final malProvider = Provider.of<MalProvider>(context, listen: false);
+    malProvider.fetchMal();
+  }
 
   @override
   Widget build(BuildContext context) {

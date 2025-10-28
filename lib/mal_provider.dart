@@ -19,7 +19,6 @@ class Mal {
     this.klar = false,
   });
 
-  // Veckonummer
   int get vecka => datum != null
       ? ((datum!.difference(DateTime(datum!.year, 1, 1)).inDays) ~/ 7) + 1
       : 0;

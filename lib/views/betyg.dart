@@ -1,3 +1,4 @@
+//import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -39,6 +40,25 @@ class _BetygSidaState extends State<BetygSida> {
     
     else {
       displayReadTime = widget.readTime ?? '00:00';
+    }
+  }
+
+  Future<void> saveSessionToFirestore(Session session) async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      await _db
+        .collection('users')
+        .doc(user.uid)
+        .collection('sessions')
+        .doc(session.datum)
+        .set({
+          'engagemang': session.engagemang,
+          'kvalitet': session.kvalitet,
+          'uppmarksamhet': session.uppmarksamhet,
+          'anteckning': session.anteckning,
+          'lastReadTime': session.lastReadTime,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
     }
   }
 
@@ -97,7 +117,8 @@ class _BetygSidaState extends State<BetygSida> {
               const SizedBox(height: 24),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
+                  // ----- // 
+                  onPressed: () async {
                     final session = Session(
                       datum: today,
                       engagemang: engagemang,
@@ -106,6 +127,7 @@ class _BetygSidaState extends State<BetygSida> {
                       anteckning: anteckningController.text,
                       lastReadTime: displayReadTime,
                     );
+
                     Provider.of<SessionProvider>(context, listen: false)
                         .addOrUpdateSession(session);
                     
@@ -118,6 +140,7 @@ class _BetygSidaState extends State<BetygSida> {
                       (Route<dynamic> route) => false, // Rensa ALLA rutter under
                     );
                   },
+
                   style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF8CA1DE),
                       padding: const EdgeInsets.symmetric(

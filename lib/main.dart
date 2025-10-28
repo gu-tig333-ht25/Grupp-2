@@ -22,7 +22,7 @@ import 'providers/mal_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('sv_SE', null); // Initiera svenska locale
+  await initializeDateFormatting('sv_SE', null); 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -35,7 +35,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => SessionProvider()),
         ChangeNotifierProvider(create: (_) => CalendarProvider())
       ],
-      child: const MyApp(), // MyApp sköter routing och AuthGate
+      child: const MyApp(), 
     ),
   );
 }
@@ -100,6 +100,25 @@ class AuthGate extends StatelessWidget {
   }
 }
 
+class DialoglasningsApp extends StatelessWidget {
+  const DialoglasningsApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Dialogisk Läsning',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme:
+            ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
+      ),
+      home: const HuvudNavigator(),
+    );
+  }
+}
+
 // HUVUDNAVIGATOR MED BOTTOM BAR
 class HuvudNavigator extends StatefulWidget {
   const HuvudNavigator({super.key});
@@ -143,7 +162,6 @@ class _HuvudNavigatorState extends State<HuvudNavigator> {
   }
 }
 
-// STARTSIDAN
 class StartSida extends StatelessWidget {
   const StartSida({super.key});
 

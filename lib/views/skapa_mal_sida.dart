@@ -77,15 +77,26 @@ class _SkapaMalSidaState extends State<SkapaMalSida> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8CA1DE)),
-                onPressed: () {
+                onPressed: () async{
                   if (_malController.text.isNotEmpty) {
+                    final title = _malController.text;
+                    final note = _anteckningController.text;
+                    final type = _malTyp;
+                    final date = _malTyp == 'Dagsmål' ? DateTime.now() : _valdDatum;
+                    
                     malProvider.laggTillMal(
                       _malController.text,
                       typ: _malTyp,
                       anteckning: _anteckningController.text,
                       datum: _malTyp == 'Dagsmål' ? DateTime.now() : _valdDatum,
                     );
-                    Navigator.pop(context);
+                    await saveGoalToFirestore(
+                      title: title,
+                      type: type,
+                      note: note,
+                      date: date,
+                    );
+                  Navigator.pop(context);
                   }
                 },
                 child: const Text("Skapa mål", style: TextStyle(color: Colors.white)),
