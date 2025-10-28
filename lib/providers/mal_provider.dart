@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+// =================================================================
+// 1. Mal - Datamodellen (från Kod 2 med Firestore-stöd)
+// =================================================================
 class Mal {
   String id;
   String titel;
