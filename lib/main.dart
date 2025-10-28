@@ -35,7 +35,6 @@ void main() async {
   );
 }
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -49,40 +48,17 @@ class MyApp extends StatelessWidget {
             ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
         useMaterial3: true,
         scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF8CA1DE), 
+          foregroundColor: Colors.white,
+        ),
       ),
-      home: const InitFirebase(),
+
+      home: const AuthGate(),
       routes: {
         '/login': (context) => const Login(),
         '/signup': (context) => const Signup(),
         '/timer': (context) => const TimerSida(),
-      },
-    );
-  }
-}
-
-class InitFirebase extends StatelessWidget {
-  const InitFirebase({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<FirebaseApp>(
-      future: Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      ),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (snapshot.hasError) {
-          return Scaffold(
-            body: Center(
-              child: Text('Fel vid Firebase-initiering: ${snapshot.error}'),
-            ),
-          );
-        }
-        return const AuthGate();
       },
     );
   }
@@ -109,30 +85,12 @@ class AuthGate extends StatelessWidget {
         }
 
         if (snapshot.hasData) {
-          return const DialoglasningsApp();
+          Provider.of<MalProvider>(context, listen: false).loadGoalsFromFirestore();
+          return const HuvudNavigator();
         }
 
         return const Login();
       },
-    );
-  }
-}
-
-class DialoglasningsApp extends StatelessWidget {
-  const DialoglasningsApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Dialogisk Läsning',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
-      ),
-      home: const HuvudNavigator(),
     );
   }
 }
@@ -151,7 +109,6 @@ class _HuvudNavigatorState extends State<HuvudNavigator> {
   final List<Widget> _sidor = const [
     StartSida(),
     KalenderSida(),
-    ForumSida(),
   ];
 
   void _onItemTapped(int index) {
@@ -174,7 +131,6 @@ class _HuvudNavigatorState extends State<HuvudNavigator> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Start"),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: "Kalender"),
-          BottomNavigationBarItem(icon: Icon(Icons.family_restroom), label: "Forum"),
         ],
       ),
     );
@@ -185,6 +141,20 @@ class _HuvudNavigatorState extends State<HuvudNavigator> {
 class StartSida extends StatelessWidget {
   const StartSida({super.key});
 
+  // Funktion för att logga ut
+  Future<void> _loggaUt(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      // AuthGate hanterar navigeringen tillbaka till Login() automatiskt
+    } catch (e) {
+      // Hantera fel vid utloggning (t.ex. visa ett felmeddelande)
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
+        SnackBar(content: Text("Kunde inte logga ut: $e")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final idagDatum = DateFormat('EEEE d MMMM', 'sv_SE').format(DateTime.now());
@@ -192,15 +162,13 @@ class StartSida extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Startsida'),
-        backgroundColor: const Color(0xFF8CA1DE),
-        foregroundColor: Colors.white,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => const InstallningarSida()));
-            },
+          TextButton(
+            onPressed: () => _loggaUt(context),
+            child: const Text(
+              'Logga ut',
+              style: TextStyle(color: Colors.white, fontSize: 16),
+            ),
           ),
         ],
       ),
@@ -314,50 +282,6 @@ class KalenderSida extends StatelessWidget {
         foregroundColor: Colors.white,
       ),
       body: const Center(child: Text("Här kan kalendern ligga.")),
-    );
-  }
-}
-
-// FAMILJEFORUM
-class ForumSida extends StatelessWidget {
-  const ForumSida({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Familjeforum"),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF8CA1DE),
-        foregroundColor: Colors.white,
-      ),
-      body: const Center(
-        child: Padding(
-          padding: EdgeInsets.all(24.0),
-          child: Text(
-            "Här kan familjer dela erfarenheter och tips om dialogisk läsning.",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// INSTÄLLNINGAR
-class InstallningarSida extends StatelessWidget {
-  const InstallningarSida({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Inställningar"),
-        backgroundColor: const Color(0xFF8CA1DE),
-        foregroundColor: Colors.white,
-      ),
-      body: const Center(child: Text("Profil och appinställningar här.")),
     );
   }
 }
