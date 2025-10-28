@@ -5,7 +5,7 @@ import 'package:template/main.dart';
 //import '/pages/signup.dart';
 
 class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
+  const Login({super.key});
 
   @override
   State<Login> createState() => _LoginState();
@@ -22,17 +22,15 @@ class _LoginState extends State<Login> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     setState(() => _loading = true);
 
+    if (!mounted) return;
+    setState(() => _loading = true);
+
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const DialoglasningsApp()),
-        );
-      }
+
     } on FirebaseAuthException catch (e) {
       String message = 'Ett fel uppstod';
       if (e.code == 'user-not-found') message = 'Användare hittades inte';

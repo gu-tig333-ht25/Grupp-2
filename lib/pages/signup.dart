@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../main.dart'; // se till att sökvägen är korrekt till din main.dart
 
 class Signup extends StatefulWidget {
-  const Signup({Key? key}) : super(key: key);
+  const Signup({super.key});
 
   @override
   State<Signup> createState() => _SignupState();
@@ -24,9 +23,11 @@ class _SignupState extends State<Signup> {
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('E-post och lösenord får inte vara tomma')),
-      );
+        if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('E-post och lösenord får inte vara tomma')),
+            );
+        }
       return;
     }
 
@@ -38,12 +39,6 @@ class _SignupState extends State<Signup> {
         password: password,
       );
 
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const DialoglasningsApp()),
-        );
-      }
     } on FirebaseAuthException catch (e) {
       String message = 'Ett fel uppstod vid registreringen.';
 
@@ -73,16 +68,19 @@ class _SignupState extends State<Signup> {
           message = 'Ett okänt fel inträffade (${e.code}).';
       }
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(message)));
+      if(mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Okänt fel: $e')),
-      );
+        if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Okänt fel: $e')),
+            );
+        }
     } finally {
-      if (mounted) setState(() => _loading = false);
+        if (mounted) setState(() => _loading = false);
     }
-  }
+}
 
   @override
   Widget build(BuildContext context) {
