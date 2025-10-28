@@ -19,6 +19,7 @@ import 'providers/session_provider.dart';
 import 'providers/timer_provider.dart';
 import 'views/dagens_session.dart';
 import 'providers/mal_provider.dart';
+import 'views/omboken.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -310,16 +311,3 @@ class KalenderSida extends StatelessWidget {
   }
 }
 
-// ÖVRIGA UNDERSIDOR
-
-class OmBokenSida extends StatelessWidget {
-  const OmBokenSida({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Om boken")),
-      body: const Center(child: Text("Information om boken här.")),
-    );
-  }
-}
