@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/mal_provider.dart';
-import 'skapa_mal_sida.dart';
+import '../views/skapa_mal_sida.dart';
 
 // --- Filtreringstyper ---
 enum Filtrering { alla, klara, ejKlara }
@@ -121,9 +121,6 @@ void initState() {
             context,
             MaterialPageRoute(builder: (_) => const SkapaMalSida()),
           );
-            context,
-            MaterialPageRoute(builder: (_) => const SkapaMalSida()),
-          );
         },
         label: const Text("Lägg till mål"),
         icon: const Icon(Icons.add, color: Colors.white),
@@ -134,7 +131,7 @@ void initState() {
 
 // ... (MalListaView och GoalItem förblir oförändrade nedan) ...
 
-class MalListaView extends StatelessWidget {
+class MalListaView extends StatefulWidget {
   final Filtrering filtrering;
   const MalListaView({super.key, required this.filtrering});
 
@@ -147,7 +144,7 @@ class _MalListaViewState extends State<MalListaView> {
   void initState() {
     super.initState();
     final malProvider = Provider.of<MalProvider>(context, listen: false);
-    malProvider.fetchMal();
+    malProvider.loadGoalsFromFirestore();
   }
 
   @override
@@ -155,7 +152,7 @@ class _MalListaViewState extends State<MalListaView> {
     final malProvider = Provider.of<MalProvider>(context); 
     final allaMal = malProvider.malLista;
 
-    final filtrerad = switch (filtrering) {
+    final filtrerad = switch (widget.filtrering) {
       Filtrering.klara => allaMal.where((m) => m.klar).toList(),
       Filtrering.ejKlara => allaMal.where((m) => !m.klar).toList(),
       _ => allaMal,

@@ -10,7 +10,7 @@ import 'views/mal_sida.dart';
 import 'package:provider/provider.dart';
 //import 'mal_provider.dart';
 import 'views/timer.dart';
-import 'views/betyg.dart';
+//import 'views/betyg.dart';
 import 'views/sessioner.dart';
 import 'views/resurser_view.dart';
 import 'calendar/calendar.dart';

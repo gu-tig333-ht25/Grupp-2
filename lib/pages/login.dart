@@ -4,7 +4,6 @@ import 'package:template/main.dart';
 import '/main.dart';
 import '/pages/signup.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 final _db = FirebaseFirestore.instance;
 final _auth = FirebaseAuth.instance;

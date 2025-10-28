@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/mal_provider.dart';
 
+
 class SkapaMalSida extends StatefulWidget {
   const SkapaMalSida({super.key});
 
@@ -73,33 +74,58 @@ class _SkapaMalSidaState extends State<SkapaMalSida> {
                 ),
               ),
             const SizedBox(height: 24),
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8CA1DE)),
-                onPressed: () async{
-                  if (_malController.text.isNotEmpty) {
-                    final title = _malController.text;
-                    final note = _anteckningController.text;
-                    final type = _malTyp;
-                    final date = _malTyp == 'Dagsmål' ? DateTime.now() : _valdDatum;
-                    
-                    malProvider.laggTillMal(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF8CA1DE),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: () async {
+                  if (_malController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Skriv in ett mål innan du sparar."),
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    );
+                    return;
+                  }
+
+                  try {
+                    await malProvider.laggTillMal(
                       _malController.text,
                       typ: _malTyp,
                       anteckning: _anteckningController.text,
-                      datum: _malTyp == 'Dagsmål' ? DateTime.now() : _valdDatum,
+                      datum: _malTyp == 'Dagsmål'
+                          ? DateTime.now()
+                          : _valdDatum ?? DateTime.now(),
                     );
-                    await saveGoalToFirestore(
-                      title: title,
-                      type: type,
-                      note: note,
-                      date: date,
+
+                    // Visa bekräftelse
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Målet har sparats!"),
+                        backgroundColor: Colors.green,
+                      ),
                     );
-                  Navigator.pop(context);
+
+                    // Gå tillbaka till föregående sida
+                    Navigator.pop(context);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Kunde inte spara mål: $e"),
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    );
                   }
                 },
-                child: const Text("Skapa mål", style: TextStyle(color: Colors.white)),
+                child: const Text(
+                  "Skapa mål",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
               ),
             ),
           ],

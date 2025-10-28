@@ -43,25 +43,6 @@ class _BetygSidaState extends State<BetygSida> {
     }
   }
 
-  Future<void> saveSessionToFirestore(Session session) async {
-    final user = _auth.currentUser;
-    if (user != null) {
-      await _db
-        .collection('users')
-        .doc(user.uid)
-        .collection('sessions')
-        .doc(session.datum)
-        .set({
-          'engagemang': session.engagemang,
-          'kvalitet': session.kvalitet,
-          'uppmarksamhet': session.uppmarksamhet,
-          'anteckning': session.anteckning,
-          'lastReadTime': session.lastReadTime,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
-    }
-  }
-
   Widget starRating(String label, int value, void Function(int) onChanged) {
     return Row(
       children: [
