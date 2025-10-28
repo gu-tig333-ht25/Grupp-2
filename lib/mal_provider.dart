@@ -135,4 +135,5 @@ Future<void> toggleKlar(int index) async {
       await ref.update({'klar': mal.klar});
     }
   }
-} /*
+} 
+*/
