@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Mal {
+  String id;
   String titel;
   String typ; // "Dagsmål" eller "Veckomål"
   String anteckning;
@@ -10,6 +11,7 @@ class Mal {
   bool klar;
 
   Mal({
+    this.id = '',
     required this.titel,
     required this.typ,
     this.anteckning = '',
@@ -32,8 +34,9 @@ class Mal {
     };
   }
 
-    static Mal fromMap(Map<String, dynamic> data) {
+    static Mal fromMap(Map<String, dynamic> data, String id) {
     return Mal(
+      id: id,
       titel: data['titel'] ?? '',
       typ: data['typ'] ?? 'Dagsmål',
       anteckning: data['anteckning'] ?? '',
@@ -63,7 +66,7 @@ class MalProvider with ChangeNotifier {
 
     _malLista.clear();
     for (var doc in snapshot.docs) {
-      _malLista.add(Mal.fromMap(doc.data()));
+      _malLista.add(Mal.fromMap(doc.data(), doc.id));
     }
     notifyListeners();
   }
@@ -85,29 +88,29 @@ class MalProvider with ChangeNotifier {
 
     final user = _auth.currentUser;
     if (user != null) {
-      await _db
-          .collection('users')
-          .doc(user.uid)
-          .collection('goals')
-          .add(nyttMal.toMap());
+    final ref = _db
+        .collection('users')
+        .doc(user.uid)
+        .collection('goals')
+        .doc();
+
+        nyttMal.id = ref.id;
+        await ref.set(nyttMal.toMap());
     }
   }
 
   Future<void> taBortMal(int index) async {
     if (index < 0 || index >= _malLista.length) return;
 
+    final mal = _malLista[index];
     final user = _auth.currentUser;
-    if (user != null) {
-      final mal = _malLista[index];
-      final ref = _db.collection('users').doc(user.uid).collection('goals');
-      final snapshot = await ref
-          .where('titel', isEqualTo: mal.titel)
-          .where('anteckning', isEqualTo: mal.anteckning)
-          .get();
-
-      for (var doc in snapshot.docs) {
-        await doc.reference.delete();
-      }
+    if (user != null && mal.id.isNotEmpty) {
+      final ref = _db
+          .collection('users')
+          .doc(user.uid)
+          .collection('goals')
+          .doc(mal.id);
+      await ref.delete();
     }
 
     _malLista.removeAt(index);
@@ -117,21 +120,19 @@ class MalProvider with ChangeNotifier {
 Future<void> toggleKlar(int index) async {
     if (index < 0 || index >= _malLista.length) return;
 
-    _malLista[index].klar = !_malLista[index].klar;
+    final mal = _malLista[index];
+    mal.klar = !mal.klar;
     notifyListeners();
 
     final user = _auth.currentUser;
-    if (user != null) {
-      final mal = _malLista[index];
-      final ref = _db.collection('users').doc(user.uid).collection('goals');
-      final snapshot = await ref
-          .where('titel', isEqualTo: mal.titel)
-          .where('anteckning', isEqualTo: mal.anteckning)
-          .get();
+    if (user != null && mal.id.isNotEmpty) {
+      final ref = _db
+          .collection('users')
+          .doc(user.uid)
+          .collection('goals')
+          .doc(mal.id);
 
-      for (var doc in snapshot.docs) {
-        await doc.reference.update({'klar': mal.klar});
-      }
+      await ref.update({'klar': mal.klar});
     }
   }
 }
