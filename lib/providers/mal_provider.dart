@@ -49,19 +49,18 @@ class Mal {
   }
 }
 
-// =================================================================
 // 2. MalProvider - Provider/Service Layer (Kombinerad)
-// =================================================================
+
 class MalProvider with ChangeNotifier {
   final List<Mal> _malLista = [];
 
-  // Firestore och Auth instanser (från Kod 2)
+  // Firestore och Auth instanser 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   List<Mal> get malLista => _malLista;
 
-  // --- Firestore Laddning/CRUD (Från Kod 2) ---
+  // Firestore Laddning/CRUD 
 
   Future<void> loadGoalsFromFirestore() async {
     final user = _auth.currentUser;
@@ -153,9 +152,9 @@ class MalProvider with ChangeNotifier {
     }
   }
 
-  // --- Automatisk Statusuppdatering (Från Kod 1, modifierad för Firestore) ---
+  //Automatisk Statusuppdatering
 
-  // 🔢 Hjälpfunktion för att beräkna veckonummer
+  // Hjälpfunktion för att beräkna veckonummer
   int _veckaNummer(DateTime date) {
     // Använder den mer robusta beräkningen från Kod 1's Mal.vecka
     final firstDayOfYear = DateTime(date.year, 1, 1);
@@ -163,7 +162,7 @@ class MalProvider with ChangeNotifier {
     return ((daysPassed + firstDayOfYear.weekday) / 7).ceil();
   }
 
-  // 🧭 Automatisk uppdatering av målstatus baserat på dagens datum
+  // Automatisk uppdatering av målstatus baserat på dagens datum
   Future<void> uppdateraMalsStatus() async {
     final idag = DateTime.now();
     final veckaNu = _veckaNummer(idag);
@@ -202,6 +201,34 @@ class MalProvider with ChangeNotifier {
     if (hasChanged) {
       await batch.commit();
       notifyListeners();
+    }
+  }
+
+  Future<void> uppdateraMalDetaljer(int index, String nyTitel, String nyAnteckning) async {
+    if (index < 0 || index >= _malLista.length) return;
+
+    final mal = _malLista[index];
+    
+    // 1. Uppdatera lokalt
+    mal.titel = nyTitel;
+    mal.anteckning = nyAnteckning;
+
+    // 2. Notifiera lyssnare
+    notifyListeners();
+
+    // 3. Uppdatera i Firestore
+    final user = _auth.currentUser;
+    if (user != null && mal.id.isNotEmpty) {
+      final ref = _db
+          .collection('users')
+          .doc(user.uid)
+          .collection('goals')
+          .doc(mal.id);
+
+      await ref.update({
+        'titel': nyTitel,
+        'anteckning': nyAnteckning,
+      });
     }
   }
 }

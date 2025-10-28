@@ -155,7 +155,7 @@ class MalListaView extends StatelessWidget {
 
     final grupperadeVeckor = <int, List<dynamic>>{};
     for (var mal in veckMal) {
-      final vecka = mal.vecka is int ? mal.vecka : (mal.vecka ?? 0); 
+      final vecka = (mal.vecka as int?) ?? 0; 
       grupperadeVeckor.putIfAbsent(vecka, () => []).add(mal);
     }
 
@@ -258,7 +258,6 @@ class GoalItem extends StatelessWidget {
           onSelected: (value) {
             if (value == 'radera') {
               malProvider.taBortMal(index);
-              malProvider.notifyListeners();
             } else if (value == 'redigera') {
               _visaRedigeringsDialog(context, malProvider, mal, index);
             }
@@ -315,9 +314,11 @@ class GoalItem extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              mal.titel = titelController.text;
-              mal.anteckning = anteckningController.text;
-              provider.notifyListeners();
+              provider.uppdateraMalDetaljer(
+                index,
+                titelController.text,
+                anteckningController.text,
+              );
               Navigator.pop(context);
             },
             child: const Text("Spara",
