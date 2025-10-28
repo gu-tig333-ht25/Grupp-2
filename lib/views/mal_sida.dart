@@ -6,87 +6,113 @@ import 'skapa_mal_sida.dart';
 // --- Filtreringstyper ---
 enum Filtrering { alla, klara, ejKlara }
 
-class MalSida extends StatelessWidget {
+class MalSida extends StatefulWidget {
   const MalSida({super.key});
+
+  @override
+  State<MalSida> createState() => _MalSidaState();
+}
+
+class _MalSidaState extends State<MalSida> {
+  Filtrering _valdFiltrering = Filtrering.alla;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<MalProvider>(context, listen: false).loadGoalsFromFirestore(); 
+    });
+  }
+
+  String _getTitel() {
+    switch (_valdFiltrering) {
+      case Filtrering.klara:
+        return "Avklarade mål";
+      case Filtrering.ejKlara:
+        return "Ej avklarade mål";
+      default:
+        return "Dina mål";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF9E6),
       appBar: AppBar(
-        title: const Text("Dina mål"),
+        title: Text(_getTitel()), 
         backgroundColor: const Color(0xFF8CA1DE),
         foregroundColor: Colors.white,
+        
+        // --- ÄNDRING 1: Lägg tillbaks tillbakapilen manuellt i leading ---
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
+
+        // --- ÄNDRING 2: Flytta Drawer-ikonen till actions och öppna den manuellt ---
         actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.menu),
-            onSelected: (value) {
-              if (value == 'alla') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        const FiltreradMalSida(filtrering: Filtrering.alla),
-                  ),
-                );
-              } else if (value == 'klara') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        const FiltreradMalSida(filtrering: Filtrering.klara),
-                  ),
-                );
-              } else if (value == 'ejklara') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        const FiltreradMalSida(filtrering: Filtrering.ejKlara),
-                  ),
-                );
-              }
-            },
-            itemBuilder: (context) => const [
-              PopupMenuItem(
-                value: 'alla',
-                child: Row(
-                  children: [
-                    Icon(Icons.list),
-                    SizedBox(width: 8),
-                    Text("Alla mål"),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'klara',
-                child: Row(
-                  children: [
-                    Icon(Icons.check_circle, color: Colors.green),
-                    SizedBox(width: 8),
-                    Text("Avklarade mål"),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'ejklara',
-                child: Row(
-                  children: [
-                    Icon(Icons.radio_button_unchecked, color: Colors.orange),
-                    SizedBox(width: 8),
-                    Text("Ej avklarade mål"),
-                  ],
-                ),
-              ),
-            ],
+          Builder( // Använd Builder för att få en context som är barn till Scaffold
+            builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer(); // Öppnar sidomenyn
+                },
+              );
+            }
           ),
         ],
       ),
-      body: const MalListaView(filtrering: Filtrering.alla),
+      
+      // Drawer (sidomenyn) ligger kvar som filtreringsmekanism
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Color(0xFF8CA1DE)),
+              child: Text(
+                'Filtrera mål',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.list),
+              title: const Text("Alla mål"),
+              selected: _valdFiltrering == Filtrering.alla,
+              onTap: () {
+                setState(() => _valdFiltrering = Filtrering.alla);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.check_circle, color: Colors.green),
+              title: const Text("Avklarade mål"),
+              selected: _valdFiltrering == Filtrering.klara,
+              onTap: () {
+                setState(() => _valdFiltrering = Filtrering.klara);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.radio_button_unchecked,
+                  color: Colors.orange),
+              title: const Text("Ej avklarade mål"),
+              selected: _valdFiltrering == Filtrering.ejKlara,
+              onTap: () {
+                setState(() => _valdFiltrering = Filtrering.ejKlara);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+      // Skicka det aktuella filtret till MalListaView
+      body: MalListaView(filtrering: _valdFiltrering),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFF8CA1DE),
         onPressed: () async {
@@ -102,38 +128,7 @@ class MalSida extends StatelessWidget {
   }
 }
 
-class FiltreradMalSida extends StatelessWidget {
-  final Filtrering filtrering;
-  const FiltreradMalSida({super.key, required this.filtrering});
-
-  String _getTitel() {
-    switch (filtrering) {
-      case Filtrering.klara:
-        return "Avklarade mål";
-      case Filtrering.ejKlara:
-        return "Ej avklarade mål";
-      default:
-        return "Alla mål";
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFF9E6),
-      appBar: AppBar(
-        title: Text(_getTitel()),
-        backgroundColor: const Color(0xFF8CA1DE),
-        foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: MalListaView(filtrering: filtrering),
-    );
-  }
-}
+// ... (MalListaView och GoalItem förblir oförändrade nedan) ...
 
 class MalListaView extends StatelessWidget {
   final Filtrering filtrering;
@@ -141,91 +136,87 @@ class MalListaView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MalProvider>(
-      builder: (context, malProvider, child) {
-        final allaMal = malProvider.malLista;
+    final malProvider = Provider.of<MalProvider>(context); 
+    final allaMal = malProvider.malLista;
 
-        // 🔍 Filtrera målen efter status
-        final filtrerad = switch (filtrering) {
-          Filtrering.klara => allaMal.where((m) => m.klar).toList(),
-          Filtrering.ejKlara => allaMal.where((m) => !m.klar).toList(),
-          _ => allaMal,
-        };
+    final filtrerad = switch (filtrering) {
+      Filtrering.klara => allaMal.where((m) => m.klar).toList(),
+      Filtrering.ejKlara => allaMal.where((m) => !m.klar).toList(),
+      _ => allaMal,
+    };
 
-        final dagsMal = filtrerad.where((m) => m.typ == 'Dagsmål').toList();
-        final veckMal = filtrerad.where((m) => m.typ == 'Veckomål').toList();
+    final dagsMal = filtrerad.where((m) => m.typ == 'Dagsmål').toList();
+    final veckMal = filtrerad.where((m) => m.typ == 'Veckomål').toList();
 
-        // Sortera
-        dagsMal.sort((a, b) =>
-            (a.datum ?? DateTime.now()).compareTo(b.datum ?? DateTime.now()));
-        veckMal.sort((a, b) =>
-            (a.datum ?? DateTime.now()).compareTo(b.datum ?? DateTime.now()));
+    dagsMal.sort((a, b) =>
+        (a.datum ?? DateTime.now()).compareTo(b.datum ?? DateTime.now()));
+    veckMal.sort((a, b) =>
+        (a.datum ?? DateTime.now()).compareTo(b.datum ?? DateTime.now()));
 
-        final grupperadeVeckor = <int, List<Mal>>{};
-        for (var mal in veckMal) {
-          grupperadeVeckor.putIfAbsent(mal.vecka, () => []).add(mal);
-        }
+    final grupperadeVeckor = <int, List<dynamic>>{};
+    for (var mal in veckMal) {
+      final vecka = mal.vecka is int ? mal.vecka : (mal.vecka ?? 0); 
+      grupperadeVeckor.putIfAbsent(vecka, () => []).add(mal);
+    }
 
-        return ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            const Text(
-              "Dagens mål",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        const Text(
+          "Dagens mål",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        if (dagsMal.isEmpty)
+          const Text("Inga dagsmål", style: TextStyle(color: Colors.grey))
+        else
+          ...dagsMal.map(
+            (mal) => GoalItem(
+              mal: mal,
+              index: malProvider.malLista.indexOf(mal),
             ),
-            const SizedBox(height: 8),
-            if (dagsMal.isEmpty)
-              const Text("Inga dagsmål", style: TextStyle(color: Colors.grey))
-            else
-              ...dagsMal.map(
-                (mal) => GoalItem(
-                  mal: mal,
-                  index: malProvider.malLista.indexOf(mal),
-                ),
-              ),
-            const SizedBox(height: 16),
-            const Text(
-              "Veckomål",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            if (grupperadeVeckor.isEmpty)
-              const Text("Inga veckomål", style: TextStyle(color: Colors.grey))
-            else
-              ...grupperadeVeckor.entries.map((entry) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Vecka ${entry.key}",
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Color(0xFF8CA1DE))),
-                    const SizedBox(height: 4),
-                    ...entry.value.map((mal) => GoalItem(
-                          mal: mal,
-                          index: malProvider.malLista.indexOf(mal),
-                        )),
-                    const SizedBox(height: 12),
-                  ],
-                );
-              }),
-          ],
-        );
-      },
+          ),
+        const SizedBox(height: 16),
+        const Text(
+          "Veckomål",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        if (grupperadeVeckor.isEmpty)
+          const Text("Inga veckomål", style: TextStyle(color: Colors.grey))
+        else
+          ...grupperadeVeckor.entries.map((entry) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Vecka ${entry.key}",
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Color(0xFF8CA1DE))),
+                const SizedBox(height: 4),
+                ...entry.value.map((mal) => GoalItem(
+                      mal: mal,
+                      index: malProvider.malLista.indexOf(mal),
+                    )),
+                const SizedBox(height: 12),
+              ],
+            );
+          }),
+      ],
     );
   }
 }
 
 class GoalItem extends StatelessWidget {
-  final Mal mal;
+  final dynamic mal;
   final int index;
 
   const GoalItem({super.key, required this.mal, required this.index});
 
   @override
   Widget build(BuildContext context) {
-    final malProvider = Provider.of<MalProvider>(context, listen: false);
+    final malProvider = Provider.of<MalProvider>(context, listen: false); 
 
     String formatDatum(DateTime? d) {
       if (d == null) return '';
@@ -238,18 +229,13 @@ class GoalItem extends StatelessWidget {
         leading: Checkbox(
           value: mal.klar,
           activeColor: const Color(0xFF8CA1DE),
-          onChanged: (_) {
-            // ✅ Uppdatera status
-            malProvider.toggleKlar(index);
-            // 🔁 Detta triggar ombyggnad av UI och gör att målet försvinner
-            malProvider.notifyListeners();
-          },
+          onChanged: (_) => malProvider.toggleKlar(index), 
         ),
         title: Text(
           mal.titel,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: mal.klar ? Colors.grey : Colors.black,
+            color: mal.klar ? Colors.grey : Colors.black, 
             decoration: mal.klar ? TextDecoration.lineThrough : null,
           ),
         ),
@@ -300,7 +286,7 @@ class GoalItem extends StatelessWidget {
   }
 
   void _visaRedigeringsDialog(
-      BuildContext context, MalProvider provider, Mal mal, int index) {
+      BuildContext context, MalProvider provider, dynamic mal, int index) {
     final titelController = TextEditingController(text: mal.titel);
     final anteckningController = TextEditingController(text: mal.anteckning);
 
