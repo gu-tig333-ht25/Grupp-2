@@ -1,0 +1,18 @@
+# pack-refs with: peeled fully-peeled sorted 
+614268849572a521589bab9393494d9c2920447b refs/heads/Eleonor2
+4a4904b9677bbde012eae0204d99a2c67b19539d refs/heads/Lina
+7448f0916b041d0f0a1c11ad9bf4c0c381d9c5a1 refs/heads/alexandra-learnmore
+e765f3078f57c377641258fcbad17e1eab41eeb2 refs/heads/emma--api
+daae181b1fe5d14901ecc4b777fafbe424fe4aa9 refs/heads/emma-corrupted
+24b88e8dd15a3f2ebaa07f484da076a56c33a50f refs/heads/joel
+3e4dd966b28a0c645447100b437ce2461686ed09 refs/heads/main
+2c12a9895a4c2a5b39c7a3b5a0e9d182ce2fee23 refs/heads/revert-14-Eleonor2
+e765f3078f57c377641258fcbad17e1eab41eeb2 refs/pull/10/head
+f0de64ece87b41aff711c79041fb4e96fdfcea2a refs/pull/11/head
+4a4904b9677bbde012eae0204d99a2c67b19539d refs/pull/12/head
+7448f0916b041d0f0a1c11ad9bf4c0c381d9c5a1 refs/pull/13/head
+614268849572a521589bab9393494d9c2920447b refs/pull/14/head
+2c12a9895a4c2a5b39c7a3b5a0e9d182ce2fee23 refs/pull/15/head
+daae181b1fe5d14901ecc4b777fafbe424fe4aa9 refs/pull/16/head
+17ddc79cde7f2787418a9a19bc65d13d25bded96 refs/pull/8/head
+23eb0fb9b13a00b1c553c1d264c6b5cddf45330c refs/pull/9/head

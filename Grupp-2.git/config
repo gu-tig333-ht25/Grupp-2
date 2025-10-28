@@ -1,0 +1,11 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = true
+	symlinks = false
+	ignorecase = true
+[remote "origin"]
+	url = https://github.com/gu-tig333-ht25/Grupp-2
+	tagOpt = --no-tags
+	fetch = +refs/*:refs/*
+	mirror = true
