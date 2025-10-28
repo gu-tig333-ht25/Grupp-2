@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:template/calendar/calendar.dart';
 import 'firebase_options.dart';
 import 'pages/signup.dart';
 import 'pages/login.dart';
@@ -11,12 +10,9 @@ import 'views/mal_sida.dart';
 import 'package:provider/provider.dart';
 //import 'mal_provider.dart';
 import 'views/timer.dart';
-import 'package:provider/provider.dart';
 import 'views/betyg.dart';
 import 'views/sessioner.dart';
 import 'views/resurser_view.dart';
-import 'views/timer.dart';
-import 'package:provider/provider.dart';
 import 'calendar/calendar.dart';
 import 'calendar/calendar_provider.dart';
 import 'providers/session_provider.dart';
@@ -118,7 +114,7 @@ class _HuvudNavigatorState extends State<HuvudNavigator> {
   final List<Widget> _sidor = const [
     StartSida(),
     CalendarPage(),
-    ForumSida(),
+    //ForumSida(),
   ];
 
   void _onItemTapped(int index) {
