@@ -13,6 +13,14 @@ class MalSida extends StatefulWidget {
 class _MalSidaState extends State<MalSida> {
   Filtrering _valdFiltrering = Filtrering.alla;
 
+@override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    Provider.of<MalProvider>(context, listen: false).loadGoalsFromFirestore();
+  });
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
