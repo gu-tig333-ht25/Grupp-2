@@ -24,13 +24,6 @@ void initState() {
   });
 }
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<MalProvider>(context, listen: false).loadGoalsFromFirestore(); 
-    });
-  }
 
   String _getTitel() {
     switch (_valdFiltrering) {
