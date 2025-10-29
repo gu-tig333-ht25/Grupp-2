@@ -4,29 +4,33 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'firebase_options.dart';
+//Importer för sidor och vyer
 import 'pages/signup.dart';
 import 'pages/login.dart';
 import 'views/mal_sida.dart';
-import 'package:provider/provider.dart';
 import 'views/timer.dart';
 import 'views/sessioner.dart';
 import 'views/resurser_view.dart';
 import 'calendar/calendar.dart';
+import 'views/omboken.dart';
+import 'views/dagens_session.dart';
+//Importer för tillståndshantering (Provider)
+import 'package:provider/provider.dart';
 import 'calendar/calendar_provider.dart';
 import 'providers/session_provider.dart';
 import 'providers/timer_provider.dart';
-import 'views/dagens_session.dart';
 import 'providers/mal_provider.dart';
-import 'views/omboken.dart';
 
+//Huvudfunktion
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('sv_SE', null); 
-  await Firebase.initializeApp(
+  WidgetsFlutterBinding.ensureInitialized(); 
+  await initializeDateFormatting('sv_SE', null); //Ställer in svenskt datumformat
+  await Firebase.initializeApp( //Initierar firebase
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
   runApp(
+    //Tillhandahåller appens globala tillstånd (data)
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => MalProvider()),
@@ -39,6 +43,7 @@ void main() async {
   );
 }
 
+//MyApp - Appens grundläggande struktur och tema
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -48,6 +53,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Dialogisk Läsning',
       theme: ThemeData(
+        //Ställer in appens färgtema
         colorScheme:
             ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
         useMaterial3: true,
@@ -58,7 +64,9 @@ class MyApp extends StatelessWidget {
         ),
       ),
 
+      //Startar appen med autentiseringskontrollen
       home: const AuthGate(),
+      //Definerar namngivna rutter
       routes: {
         '/login': (context) => const Login(),
         '/signup': (context) => const Signup(),
@@ -68,59 +76,48 @@ class MyApp extends StatelessWidget {
   }
 }
 
+//AuthGate - Kontrollerar användarens inloggningsstatus
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
   @override
   Widget build(BuildContext context) {
+    //Lyssnar på inloggnings/utloggnings-händelser från Firebase
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
+        //Visar laddning
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
+        //Felhantering
         if (snapshot.hasError) {
           return Scaffold(
             body: Center(child: Text('Fel i authStateChanges: ${snapshot.error}')),
           );
         }
 
+        //Om användaren är inloggad:
         if (snapshot.hasData) {
+          //Laddar in mål och sessioner från Firestore.
           Provider.of<MalProvider>(context, listen: false).loadGoalsFromFirestore();
           Provider.of<SessionProvider>(context, listen: false).loadSessionsFromFirestore();
           
+          //Går tillbaka till Huvudnavigatorn.
           return const HuvudNavigator();
         }
 
+        //Om använderar är utloggad:
         return const Login();
       },
     );
   }
 }
 
-class DialoglasningsApp extends StatelessWidget {
-  const DialoglasningsApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Dialogisk Läsning',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
-      ),
-      home: const HuvudNavigator(),
-    );
-  }
-}
-
-// HUVUDNAVIGATOR MED BOTTOM BAR
+// HuvudNavigator - appens Bottom-navigering
 class HuvudNavigator extends StatefulWidget {
   const HuvudNavigator({super.key});
 
@@ -131,6 +128,7 @@ class HuvudNavigator extends StatefulWidget {
 class _HuvudNavigatorState extends State<HuvudNavigator> {
   int _valdIndex = 0;
 
+  //Lista över vyer för bottenfältet
   final List<Widget> _sidor = const [
     StartSida(),
     CalendarPage(),
@@ -138,7 +136,7 @@ class _HuvudNavigatorState extends State<HuvudNavigator> {
 
   void _onItemTapped(int index) {
     setState(() {
-      _valdIndex = index;
+      _valdIndex = index; //Uppdaterar vald sida.
     });
   }
 
@@ -146,6 +144,7 @@ class _HuvudNavigatorState extends State<HuvudNavigator> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _sidor[_valdIndex],
+      //Bottomnavigation-fältet
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: const Color(0xFF8CA1DE),
         selectedItemColor: Colors.white,
@@ -162,19 +161,20 @@ class _HuvudNavigatorState extends State<HuvudNavigator> {
   }
 }
 
+//Startsida - huvudskärmen efter inloggning
 class StartSida extends StatelessWidget {
   const StartSida({super.key});
 
-  // Funktion för att logga ut
+  // Funktion för att logga ut och rensa provider-data
   Future<void> _loggaUt(BuildContext context) async {
     final sessionProvider = Provider.of<SessionProvider>(context, listen: false);
     final malProvider = Provider.of<MalProvider>(context, listen: false);
     
     try {
       await FirebaseAuth.instance.signOut();
+      //Rensar lokal data för att undvika problem vid nästa inloggning.
       sessionProvider.clearData();
       malProvider.clearData();
-      // AuthGate hanterar navigeringen tillbaka till Login() automatiskt
     } catch (e) {
       // Hantera fel vid utloggning (t.ex. visa ett felmeddelande)
       final messenger = ScaffoldMessenger.of(context);
@@ -237,7 +237,7 @@ class StartSida extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
 
-                    // Knapp
+                    // Knapp för att starta session.
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.2,
                       child: ElevatedButton(
@@ -268,7 +268,7 @@ class StartSida extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // Övriga knappar på startsidan
+              // Navigeringsknappar till appens övriga vyer
               _buildNavButton(context, "🎯 Mål", const MalSida()),
               const SizedBox(height: 16),
               _buildNavButton(context, "⭐ Sessioner", const SessionerSida()),
@@ -283,6 +283,7 @@ class StartSida extends StatelessWidget {
     );
   }
 
+  //Hjälp-widget för att bygga de stora navigeringsknapparna
   Widget _buildNavButton(BuildContext context, String text, Widget sida) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(

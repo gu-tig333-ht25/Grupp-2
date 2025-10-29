@@ -48,7 +48,7 @@ class _SignupState extends State<Signup> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const DialoglasningsApp()),
+          MaterialPageRoute(builder: (context) => const HuvudNavigator()),
         );
       }
     } on FirebaseAuthException catch (e) {
