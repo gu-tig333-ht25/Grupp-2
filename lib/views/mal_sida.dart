@@ -38,12 +38,16 @@ void initState() {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary; 
+    final appBarColor = Theme.of(context).appBarTheme.backgroundColor; 
+    final scaffoldBgColor = Theme.of(context).scaffoldBackgroundColor;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF9E6),
+      backgroundColor: scaffoldBgColor,
       appBar: AppBar(
         title: Text(_getTitel()), 
-        backgroundColor: const Color(0xFF8CA1DE),
-        foregroundColor: Colors.white,
+        backgroundColor: appBarColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         
         // --- ÄNDRING 1: Lägg tillbaks tillbakapilen manuellt i leading ---
         leading: IconButton(
@@ -71,9 +75,9 @@ void initState() {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Color(0xFF8CA1DE)),
-              child: Text(
+            DrawerHeader(
+              decoration: BoxDecoration(color: appBarColor),
+              child: const Text(
                 'Filtrera mål',
                 style: TextStyle(
                     color: Colors.white,
@@ -85,6 +89,7 @@ void initState() {
               leading: const Icon(Icons.list),
               title: const Text("Alla mål"),
               selected: _valdFiltrering == Filtrering.alla,
+              selectedTileColor: primaryColor.withAlpha(26),
               onTap: () {
                 setState(() => _valdFiltrering = Filtrering.alla);
                 Navigator.pop(context);
@@ -94,6 +99,7 @@ void initState() {
               leading: const Icon(Icons.check_circle, color: Colors.green),
               title: const Text("Avklarade mål"),
               selected: _valdFiltrering == Filtrering.klara,
+              selectedTileColor: primaryColor.withAlpha(26),
               onTap: () {
                 setState(() => _valdFiltrering = Filtrering.klara);
                 Navigator.pop(context);
@@ -104,6 +110,7 @@ void initState() {
                   const Icon(Icons.radio_button_unchecked, color: Colors.orange),
               title: const Text("Ej avklarade mål"),
               selected: _valdFiltrering == Filtrering.ejKlara,
+              selectedTileColor: primaryColor.withAlpha(26),
               onTap: () {
                 setState(() => _valdFiltrering = Filtrering.ejKlara);
                 Navigator.pop(context);
@@ -115,7 +122,7 @@ void initState() {
       // Skicka det aktuella filtret till MalListaView
       body: MalListaView(filtrering: _valdFiltrering),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: const Color(0xFF8CA1DE),
+        backgroundColor: appBarColor,
         onPressed: () async {
           await Navigator.push(
             context,
@@ -151,6 +158,7 @@ class _MalListaViewState extends State<MalListaView> {
   Widget build(BuildContext context) {
     final malProvider = Provider.of<MalProvider>(context); 
     final allaMal = malProvider.malLista;
+    final appBarColor = Theme.of(context).appBarTheme.backgroundColor;
 
     final filtrerad = switch (widget.filtrering) {
       Filtrering.klara => allaMal.where((m) => m.klar).toList(),
@@ -203,10 +211,10 @@ class _MalListaViewState extends State<MalListaView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Vecka ${entry.key}",
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: Color(0xFF8CA1DE))),
+                        color: appBarColor)),
                 const SizedBox(height: 4),
                 ...entry.value.map((mal) => GoalItem(
                       mal: mal,
@@ -230,6 +238,7 @@ class GoalItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final malProvider = Provider.of<MalProvider>(context, listen: false); 
+    final appBarColor = Theme.of(context).appBarTheme.backgroundColor;
 
     String formatDatum(DateTime? d) {
       if (d == null) return '';
@@ -241,7 +250,7 @@ class GoalItem extends StatelessWidget {
       child: ListTile(
         leading: Checkbox(
           value: mal.klar,
-          activeColor: const Color(0xFF8CA1DE),
+          activeColor: appBarColor,
           onChanged: (_) => malProvider.toggleKlar(index), 
         ),
         title: Text(
@@ -272,7 +281,7 @@ class GoalItem extends StatelessWidget {
             if (value == 'radera') {
               malProvider.taBortMal(index);
             } else if (value == 'redigera') {
-              _visaRedigeringsDialog(context, malProvider, mal, index);
+              _visaRedigeringsDialog(context, malProvider, mal, index, appBarColor);
             }
           },
           itemBuilder: (context) => [
@@ -298,7 +307,7 @@ class GoalItem extends StatelessWidget {
   }
 
   void _visaRedigeringsDialog(
-      BuildContext context, MalProvider provider, dynamic mal, int index) {
+    BuildContext context, MalProvider provider, dynamic mal, int index, Color? appBarColor) {
     final titelController = TextEditingController(text: mal.titel);
     final anteckningController = TextEditingController(text: mal.anteckning);
 
@@ -334,8 +343,8 @@ class GoalItem extends StatelessWidget {
               );
               Navigator.pop(context);
             },
-            child: const Text("Spara",
-                style: TextStyle(color: Color(0xFF8CA1DE))),
+            child: Text("Spara",
+                style: TextStyle(color: appBarColor)),
           ),
         ],
       ),

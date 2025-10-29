@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/mal_provider.dart';
 
-
 class SkapaMalSida extends StatefulWidget {
   const SkapaMalSida({super.key});
 
@@ -19,13 +18,16 @@ class _SkapaMalSidaState extends State<SkapaMalSida> {
   @override
   Widget build(BuildContext context) {
     final malProvider = Provider.of<MalProvider>(context);
+    final primaryColor = Theme.of(context).colorScheme.primary; 
+    final appBarColor = Theme.of(context).appBarTheme.backgroundColor; 
+    final scaffoldBgColor = Theme.of(context).scaffoldBackgroundColor;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF9E6),
+      backgroundColor: scaffoldBgColor,
       appBar: AppBar(
         title: const Text("Skapa nytt mål"),
-        backgroundColor: const Color(0xFF8CA1DE),
-        foregroundColor: Colors.white,
+        backgroundColor: appBarColor,
+        foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context)),
       ),
       body: SingleChildScrollView(
@@ -39,12 +41,14 @@ class _SkapaMalSidaState extends State<SkapaMalSida> {
               title: const Text("Dagsmål"),
               value: "Dagsmål",
               groupValue: _malTyp,
+              activeColor: primaryColor,
               onChanged: (value) => setState(() => _malTyp = value!),
             ),
             RadioListTile<String>(
               title: const Text("Veckomål"),
               value: "Veckomål",
               groupValue: _malTyp,
+              activeColor: primaryColor,
               onChanged: (value) => setState(() => _malTyp = value!),
             ),
             const SizedBox(height: 16),
@@ -79,7 +83,7 @@ class _SkapaMalSidaState extends State<SkapaMalSida> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF8CA1DE),
+                  backgroundColor: appBarColor,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 onPressed: () async {
