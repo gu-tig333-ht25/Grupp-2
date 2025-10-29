@@ -4,20 +4,18 @@ import 'package:intl/intl.dart';
 import '../providers/session_provider.dart';
 import 'betyg.dart';
 
+//Sida för att visa alla loggade lässessioner
 class SessionerSida extends StatelessWidget {
   const SessionerSida({super.key});
 
   @override
   Widget build(BuildContext context) {
 
-    final appBarColor = Theme.of(context).appBarTheme.backgroundColor;
-
     final sessioner = Provider.of<SessionProvider>(context).sessioner;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Sessioner"),
-        backgroundColor: appBarColor,
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -33,13 +31,15 @@ class SessionerSida extends StatelessWidget {
             child: ListTile(
               title: Text(displayDate),
               subtitle: Text(
+                  //Visar sammanfattning av betygen och anteckningen
                   "Engagemang: ${s.engagemang}, Kvalitet: ${s.kvalitet}, Uppmärksamhet: ${s.uppmarksamhet}\nAnteckning: ${s.anteckning}"),
               isThreeLine: true,
+              //Menyknapp för redigera/radera
               trailing: PopupMenuButton<String>(
                 onSelected: (value) async {
                   final sessionProvider = Provider.of<SessionProvider>(context, listen: false);
                   if (value == 'redigera') {
-                    // Logik för Redigering (befintlig)
+                    // Navigera till betygsida för redigering
                      Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -60,16 +60,18 @@ class SessionerSida extends StatelessWidget {
                   }
                 },
                 itemBuilder: (context) => [
+                  //Popup-alternativ - Redigera
                   PopupMenuItem(
                     value: 'redigera',
                     child: Row(
                       children: [
-                        Icon(Icons.edit, size: 18, color: appBarColor),
+                        Icon(Icons.edit, size: 18),
                         const SizedBox(width: 8),
                         const Text("Redigera"),
                       ],
                     ),
                   ),
+                  //Popup-alternativ - Radera
                   const PopupMenuItem(
                     value: 'radera',
                     child: Row(

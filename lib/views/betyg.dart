@@ -1,4 +1,3 @@
-//import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +5,7 @@ import '../providers/session_provider.dart';
 import '../providers/timer_provider.dart';
 import '../main.dart';
 
+//Betygsättningssida
 class BetygSida extends StatefulWidget {
   final String? readTime; // Lästid från timer
   final String? datum;
@@ -27,10 +27,13 @@ class _BetygSidaState extends State<BetygSida> {
   @override
   void initState() {
     super.initState();
+    //Beräkna vilket datum vi ska titta på (dagens om inget skickas med)
     final targetDate = widget.datum ?? DateFormat('yyyy-MM-dd').format(DateTime.now());
+    //Försök hämta en befintlig session före detta datum
     final session = Provider.of<SessionProvider>(context, listen: false)
         .getSessionForDate(targetDate);
 
+    //Om session redan finns, ladda in befintliga värden öfr redigering
     if (session != null) {
       engagemang = session.engagemang;
       kvalitet = session.kvalitet;
@@ -39,11 +42,13 @@ class _BetygSidaState extends State<BetygSida> {
       displayReadTime = session.lastReadTime;
     }
     
+    //Annars (ny session), använd lästiden som skickades in från timern
     else {
       displayReadTime = widget.readTime ?? '00:00';
     }
   }
 
+  //Hjälp-widget för stjärnbetyg
   Widget starRating(String label, int value, void Function(int) onChanged) {
     return Row(
       children: [
@@ -61,13 +66,20 @@ class _BetygSidaState extends State<BetygSida> {
     );
   }
 
+  // Frigör minneskontrollern
+  @override
+  void dispose() {
+    anteckningController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text("Betygsätt dagens session"),
-        backgroundColor: const Color(0xFF8CA1DE),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -78,6 +90,8 @@ class _BetygSidaState extends State<BetygSida> {
               Text("Lästid idag: $displayReadTime",
                   style: const TextStyle(fontSize: 18)),
               const SizedBox(height: 24),
+              
+              //Betygskontroller
               starRating("Engagemang", engagemang, (v) {
                 setState(() => engagemang = v);
               }),
@@ -88,6 +102,8 @@ class _BetygSidaState extends State<BetygSida> {
                 setState(() => uppmarksamhet = v);
               }),
               const SizedBox(height: 16),
+              
+              //Anteckningsfält
               TextField(
                 controller: anteckningController,
                 maxLines: 3,
@@ -97,11 +113,14 @@ class _BetygSidaState extends State<BetygSida> {
                 ),
               ),
               const SizedBox(height: 24),
+              
+              //Spara-knapp
               Center(
                 child: ElevatedButton(
-                  // ----- // 
                   onPressed: () async {
+                    //Skapa session-objektet
                     final session = Session(
+                      // Använder befintligt ID för uppdatering, annars tomt för nytt
                       id: widget.sessionId ?? '',
                       datum: widget.datum?? today,
                       engagemang: engagemang,
@@ -111,21 +130,24 @@ class _BetygSidaState extends State<BetygSida> {
                       lastReadTime: displayReadTime,
                     );
 
+                    // Spara/Uppdatera sessionen via Provider
                     Provider.of<SessionProvider>(context, listen: false)
                         .addOrUpdateSession(session);
-                    
+
+                    //Nollställ timern 
                     Provider.of<TimerProvider>(context, listen: false).resetTimer();
 
+                    //Navigera tillbaka till huvudnavigatorn och rensa stacken
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
                         builder: (context) => const HuvudNavigator(),
                       ),
-                      (Route<dynamic> route) => false, // Rensa ALLA rutter under
+                      (Route<dynamic> route) => false, // Rensa alla rutter under
                     );
                   },
 
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF8CA1DE),
+                      backgroundColor: Color(0xFF8CA1DE), 
                       padding: const EdgeInsets.symmetric(
                           horizontal: 50, vertical: 16),
                       shape: RoundedRectangleBorder(
