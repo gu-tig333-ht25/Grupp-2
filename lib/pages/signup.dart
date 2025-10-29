@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../main.dart'; 
 import 'node_model.dart'; 
 
+//Registreringssida
 class Signup extends StatefulWidget {
   const Signup({super.key});
 
@@ -11,47 +12,47 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
+  //Global nyckel för formulärvalidering
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController(); // 🔹 Nytt fält
+
+  //TextEditetingControllers
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
-  bool _obscure = true;
-  bool _loading = false;
+  bool _obscure = true; //Varibel för att dölja lösenord
+  bool _loading = false; //Variabel för att visa laddningsindikator
 
+  //Huvudfunktion för att registrera användaren
   void _trySignup() async {
+    //Validerar alla fält i formuläret
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    final name = _nameController.text.trim(); // 🔹 Nytt
+    final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
-
-    if (name.isEmpty || email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Alla fält måste fyllas i')),
-      );
-      return;
-    }
 
     setState(() => _loading = true);
 
     try {
-      // 🔹 Skapa användare i Firebase Authentication
+      //Skapa användare i Firebase Authentication
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // 🔹 Spara användardata i Firestore
+      //Spara användardata i Firestore
       await saveUserData(name);
 
       if (mounted) {
+        // Navigera till HuvudNavigator
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HuvudNavigator()),
         );
       }
     } on FirebaseAuthException catch (e) {
+      //Felhantering för specifika felkoder
       String message = 'Ett fel uppstod vid registreringen.';
 
       switch (e.code) {
@@ -75,22 +76,26 @@ class _SignupState extends State<Signup> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
       }
     } catch (e) {
+        //Hantering av allmänna fel
         if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Okänt fel: $e')),
             );
         }
     } finally {
-        if (mounted) setState(() => _loading = false);
+      //Stänger av laddningsindikatorn oavsett reslutat
+      if (mounted) setState(() => _loading = false);
     }
 }
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).appBarTheme.backgroundColor ?? const Color(0xFF8CA1DE);
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Skapa konto'),
-        backgroundColor: const Color(0xFF8CA1DE),
+        backgroundColor: primaryColor,
       ),
       body: SafeArea(
         child: Padding(
@@ -99,6 +104,7 @@ class _SignupState extends State<Signup> {
             key: _formKey,
             child: Column(
               children: [
+                //Namnfält
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
@@ -113,6 +119,7 @@ class _SignupState extends State<Signup> {
                 ),
                 const SizedBox(height: 12),
 
+                //E-post fält
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -130,6 +137,8 @@ class _SignupState extends State<Signup> {
                   },
                 ),
                 const SizedBox(height: 12),
+
+                //Lösenordsfält
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscure,
@@ -137,6 +146,7 @@ class _SignupState extends State<Signup> {
                     labelText: 'Lösenord',
                     prefixIcon: const Icon(Icons.lock),
                     border: const OutlineInputBorder(),
+                    //Knapp för att visa/dölja löseord
                     suffixIcon: IconButton(
                       icon: Icon(_obscure
                           ? Icons.visibility
@@ -151,6 +161,8 @@ class _SignupState extends State<Signup> {
                   },
                 ),
                 const SizedBox(height: 12),
+                
+                //Bekräfta löseordsfält
                 TextFormField(
                   controller: _confirmController,
                   obscureText: _obscure,
@@ -168,11 +180,13 @@ class _SignupState extends State<Signup> {
                   },
                 ),
                 const SizedBox(height: 20),
+
+                //Registreringsknapp eller laddningsindikator
                 _loading
                     ? const CircularProgressIndicator()
                     : ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF8CA1DE),
+                          backgroundColor: primaryColor,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 40, vertical: 14),
                           shape: RoundedRectangleBorder(
@@ -181,7 +195,7 @@ class _SignupState extends State<Signup> {
                         onPressed: _trySignup,
                         child: const Text('Skapa konto',
                             style: TextStyle(fontSize: 16)),
-                      ),
+                      ),                
               ],
             ),
           ),
@@ -190,6 +204,7 @@ class _SignupState extends State<Signup> {
     );
   }
 
+  //Frigöra minne från TextControllers när widgeten tas bort
   @override
   void dispose() {
     _nameController.dispose(); 

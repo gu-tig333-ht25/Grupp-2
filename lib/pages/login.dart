@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+//Inloggningssida
 class Login extends StatefulWidget {
   const Login({super.key});
 
@@ -9,40 +10,61 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  // Global nyckel för formulärvalidering
   final _formKey = GlobalKey<FormState>();
+  
+  // Texteditingcontrollers
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _obscure = true;
-  bool _loading = false;
+  bool _obscure = true; //Variabel som döljer lösenord
+  bool _loading = false; //Variabel som visar laddningsindikator
 
+  //Huvudfunktion för att logga in
   void _tryLogin() async {
+    //Validerar alla fält
     if (!(_formKey.currentState?.validate() ?? false)) return;
     setState(() => _loading = true);
 
+    //Sätter laddningsstatus till sann
     if (!mounted) return;
     setState(() => _loading = true);
 
     try {
+      //Försöker logga in med Firebase autentication
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+      // AuthGate i main.dart hanterar navigering till HuvudNavigator vid lyckad inloggning
 
     } on FirebaseAuthException catch (e) {
+      //Felhantering för specifika fel
       String message = 'Ett fel uppstod';
       if (e.code == 'user-not-found') message = 'Användare hittades inte';
       if (e.code == 'wrong-password') message = 'Fel lösenord';
       if (e.code == 'invalid-email') message = 'Ogiltig e-postadress';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
     } finally {
+      //Stänger laddningsindikatorn oavsett resultat
       if (mounted) setState(() => _loading = false);
     }
   }
 
+// Frigör minne från TextControllers när widgeten tas bort
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    
+    final primaryColor = Theme.of(context).appBarTheme.backgroundColor ?? const Color(0xFF8CA1DE);
+    
     return Scaffold(
-      appBar: AppBar(title: const Text('Logga in'), backgroundColor: const Color(0xFF8CA1DE)),
+      appBar: AppBar(title: const Text('Logga in'), backgroundColor: primaryColor),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -50,6 +72,7 @@ class _LoginState extends State<Login> {
             key: _formKey,
             child: Column(
               children: [
+                //E-post fält
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -61,6 +84,8 @@ class _LoginState extends State<Login> {
                   },
                 ),
                 const SizedBox(height: 12),
+                
+                //Lösenordsfält
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscure,
@@ -76,11 +101,13 @@ class _LoginState extends State<Login> {
                   validator: (v) => v == null || v.isEmpty ? 'Ange lösenord' : null,
                 ),
                 const SizedBox(height: 20),
-                _loading
+               
+               //Inloggningsknapp eller laddningsindikator
+               _loading
                     ? const CircularProgressIndicator()
                     : ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF8CA1DE),
+                          backgroundColor: primaryColor,
                           padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 14),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
@@ -88,8 +115,10 @@ class _LoginState extends State<Login> {
                         child: const Text('Logga in', style: TextStyle(fontSize: 16)),
                       ),
                 const SizedBox(height: 12),
+                
+                //Knapp för att navigera till registreringssidan
                 TextButton(
-                  onPressed: () => Navigator.pushReplacementNamed(context, '/signup'),
+                  onPressed: () => Navigator.pushNamed(context, '/signup'),
                   child: const Text('Skapa konto'),
                 ),
               ],
@@ -100,33 +129,3 @@ class _LoginState extends State<Login> {
     );
   }
 }
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Hemsida'), backgroundColor: const Color(0xFF8CA1DE)),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Du är inloggad!', style: TextStyle(fontSize: 20)),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                if (context.mounted) {
-                  Navigator.pushReplacementNamed(context, '/login');
-                }
-              },
-              child: const Text('Logga ut'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
