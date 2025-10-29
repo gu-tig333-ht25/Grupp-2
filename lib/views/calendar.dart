@@ -36,7 +36,8 @@ class _CalendarPageState extends State<CalendarPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Kalender"),
-        backgroundColor: const Color(0xFF8CA1DE),
+        centerTitle: true,
+        backgroundColor: Color.fromARGB(255, 45, 76, 114),
         foregroundColor: Colors.white,
       ),
       body: Column(

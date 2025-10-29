@@ -9,7 +9,7 @@ class OmBokenSida extends StatefulWidget {
 }
 
 class _OmBokenSidaState extends State<OmBokenSida> {
-  //YouTube-kontrollern ------------------------------
+  //YouTube-kontrollern 
   late YoutubePlayerController _youtubeController;
 
   //YouTube video ID
@@ -34,7 +34,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
     super.dispose();
   }
 
-  //En hjälp widget för PEER-frågor, en mall kan man nästan säga ------------------
+  //En hjälp widget för PEER-frågor, en mall kan man nästan säga 
   Widget _buildPeerSection(String title, String description, Color color) {
     return Container(
       width: double.infinity,
@@ -84,7 +84,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             
-            //Titeln ovanför youtube klippet --------------------------------
+            //Titeln ovanför youtube klippet 
             const Text(
               "Exempelbok: Knacka på",
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color.fromARGB(255, 45, 76, 114)), 
@@ -99,7 +99,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
             
             const SizedBox(height: 16),
 
-            //Texten under youtube klippet, förklaring av PEER metoden  --------------------
+            //Texten under youtube klippet, förklaring om boken
             const Text(
               "Om klippet:",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 45, 76, 114)),
@@ -112,7 +112,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
             
             const SizedBox(height: 24),
             
-            //exempel på användning av PEER metoden -----------------------------
+            //exempel på användning av PEER metoden 
             const Text(
               "PEER-stegen och exempel på frågor:",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 45, 76, 114)),

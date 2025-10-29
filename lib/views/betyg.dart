@@ -80,6 +80,7 @@ class _BetygSidaState extends State<BetygSida> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Betygsätt dagens session"),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
