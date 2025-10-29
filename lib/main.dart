@@ -11,12 +11,12 @@ import 'views/mal_sida.dart';
 import 'views/timer.dart';
 import 'views/sessioner.dart';
 import 'views/resurser_view.dart';
-import 'calendar/calendar.dart';
+import 'views/calendar.dart';
 import 'views/omboken.dart';
 import 'views/dagens_session.dart';
 //Importer för tillståndshantering (Provider)
 import 'package:provider/provider.dart';
-import 'calendar/calendar_provider.dart';
+import 'providers/calendar_provider.dart';
 import 'providers/session_provider.dart';
 import 'providers/timer_provider.dart';
 import 'providers/mal_provider.dart';
