@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+/* Sida som visar information om en barnbok ex 'Knacka på'
+Här finns inbäddat youtubeklipp och exempel på PEER metoder för högläsning */
+
 class OmBokenSida extends StatefulWidget {
   const OmBokenSida({super.key});
 
@@ -9,10 +12,10 @@ class OmBokenSida extends StatefulWidget {
 }
 
 class _OmBokenSidaState extends State<OmBokenSida> {
-  //YouTube-kontrollern ------------------------------
+  // YouTube-kontrollern och video ID
   late YoutubePlayerController _youtubeController;
 
-  //YouTube video ID
+  // YouTube video ID
   final String _videoId = '8cJZ9L29uLM'; 
 
   @override
@@ -27,14 +30,14 @@ class _OmBokenSidaState extends State<OmBokenSida> {
     );
   }
 
-  //Frigör resurserna när sidan stängs
+  // Frigör resurserna när sidan stängs
   @override
   void dispose() {
     _youtubeController.dispose();
     super.dispose();
   }
 
-  //En hjälp widget för PEER-frågor, en mall kan man nästan säga ------------------
+  // En hjälp widget för PEER-frågor, med titel, beskrivning och färg
   Widget _buildPeerSection(String title, String description, Color color) {
     return Container(
       width: double.infinity,
@@ -47,6 +50,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Titel tex P = promta
           Text(
             title,
             style: TextStyle(
@@ -56,6 +60,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
             ),
           ),
           const SizedBox(height: 4),
+          // Beskrivande tex / exempel
           Text(
             description,
             style: TextStyle(
@@ -73,25 +78,29 @@ class _OmBokenSidaState extends State<OmBokenSida> {
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 252, 252, 252),  //Ändrar bakgrunden
       appBar: AppBar(
-        title: const Text("Om boken"), //titeln i appbaren
+        title: const Text("Om boken"), // Titeln i appbaren
         centerTitle: true,
-        backgroundColor: Color.fromARGB(255, 45, 76, 114), //Ändrar färgen på appbaren
-        foregroundColor: Color.fromARGB(255, 252, 252, 252), //Ändrar färgen på texten i appbaren
+        backgroundColor: 
+          Color.fromARGB(255, 45, 76, 114), // Ändrar färgen på appbaren
+        foregroundColor: 
+          Color.fromARGB(255, 252, 252, 252), // Ändrar färgen på texten i appbaren
       ),
+
+      // Huvudinnehåll, skollbar för att få plats med all text
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             
-            //Titeln ovanför youtube klippet --------------------------------
+            // Titeln ovanför youtube klippet
             const Text(
               "Exempelbok: Knacka på",
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color.fromARGB(255, 45, 76, 114)), 
             ),
             const SizedBox(height: 16),
 
-            //Youtube klippet
+            // Youtube klippet inbäddat
             YoutubePlayer(
               controller: _youtubeController,
               showVideoProgressIndicator: true,
@@ -99,7 +108,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
             
             const SizedBox(height: 16),
 
-            //Texten under youtube klippet, förklaring av PEER metoden  --------------------
+            // Texten under youtube klippet, förklaring av PEER metoden och om klippet
             const Text(
               "Om klippet:",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 45, 76, 114)),
@@ -112,13 +121,14 @@ class _OmBokenSidaState extends State<OmBokenSida> {
             
             const SizedBox(height: 24),
             
-            //exempel på användning av PEER metoden -----------------------------
+            // Exempel på användning av PEER metoden
             const Text(
               "PEER-stegen och exempel på frågor:",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 45, 76, 114)),
             ),
             const SizedBox(height: 10),
 
+            // Exempel på PEER steg
             _buildPeerSection(
               "P: Prompta (Be barnet svara)",
               "Uppmana barnet till att svara på en fråga relaterad till boken eller sidan, exempelvis 'Vem tror du bor bakom den röda dörren?'",
@@ -140,6 +150,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
               Color.fromARGB(255, 25, 42, 62),
             ),
 
+            // Avslutande text
             const SizedBox(height: 20),
             const Text(
               "Genom att följa PEER-stegen hjälper du ditt barn att utveckla sitt ordförråd och sin narrativa förmåga.",
