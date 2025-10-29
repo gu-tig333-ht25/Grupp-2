@@ -231,4 +231,8 @@ class MalProvider with ChangeNotifier {
       });
     }
   }
+  void clearData() {
+    _malLista.clear();
+    notifyListeners();
+  }
 }

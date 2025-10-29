@@ -90,6 +90,8 @@ class AuthGate extends StatelessWidget {
 
         if (snapshot.hasData) {
           Provider.of<MalProvider>(context, listen: false).loadGoalsFromFirestore();
+          Provider.of<SessionProvider>(context, listen: false).loadSessionsFromFirestore();
+          
           return const HuvudNavigator();
         }
 
@@ -165,8 +167,13 @@ class StartSida extends StatelessWidget {
 
   // Funktion för att logga ut
   Future<void> _loggaUt(BuildContext context) async {
+    final sessionProvider = Provider.of<SessionProvider>(context, listen: false);
+    final malProvider = Provider.of<MalProvider>(context, listen: false);
+    
     try {
       await FirebaseAuth.instance.signOut();
+      sessionProvider.clearData();
+      malProvider.clearData();
       // AuthGate hanterar navigeringen tillbaka till Login() automatiskt
     } catch (e) {
       // Hantera fel vid utloggning (t.ex. visa ett felmeddelande)

@@ -9,8 +9,9 @@ import '../main.dart';
 class BetygSida extends StatefulWidget {
   final String? readTime; // Lästid från timer
   final String? datum;
+  final String? sessionId;
   
-  const BetygSida({super.key, this.readTime, this.datum});
+  const BetygSida({super.key, this.readTime, this.datum, this.sessionId});
 
   @override
   State<BetygSida> createState() => _BetygSidaState();
@@ -101,7 +102,8 @@ class _BetygSidaState extends State<BetygSida> {
                   // ----- // 
                   onPressed: () async {
                     final session = Session(
-                      datum: today,
+                      id: widget.sessionId ?? '',
+                      datum: widget.datum?? today,
                       engagemang: engagemang,
                       kvalitet: kvalitet,
                       uppmarksamhet: uppmarksamhet,

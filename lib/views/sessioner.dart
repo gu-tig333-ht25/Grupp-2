@@ -9,11 +9,15 @@ class SessionerSida extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final appBarColor = Theme.of(context).appBarTheme.backgroundColor;
+
     final sessioner = Provider.of<SessionProvider>(context).sessioner;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Sessioner"),
-        backgroundColor: const Color(0xFF8CA1DE),
+        backgroundColor: appBarColor,
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -31,16 +35,52 @@ class SessionerSida extends StatelessWidget {
               subtitle: Text(
                   "Engagemang: ${s.engagemang}, Kvalitet: ${s.kvalitet}, Uppmärksamhet: ${s.uppmarksamhet}\nAnteckning: ${s.anteckning}"),
               isThreeLine: true,
-              trailing: IconButton(
-                icon: const Icon(Icons.edit, color: Color(0xFF8CA1DE)),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BetygSida(readTime: s.lastReadTime, datum: s.datum,),
-                    ),
-                  );
+              trailing: PopupMenuButton<String>(
+                onSelected: (value) async {
+                  final sessionProvider = Provider.of<SessionProvider>(context, listen: false);
+                  if (value == 'redigera') {
+                    // Logik för Redigering (befintlig)
+                     Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BetygSida(
+                          readTime: s.lastReadTime, 
+                          datum: s.datum, 
+                          sessionId: s.id,
+                        ),
+                      ),
+                    );
+                  } else if (value == 'radera') {
+                    //Radera
+                    // Hitta indexet för den aktuella sessionen
+                    final index = sessionProvider.sessioner.indexOf(s);
+                    if (index != -1) {
+                      await sessionProvider.taBortSession(index);
+                    }
+                  }
                 },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'redigera',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, size: 18, color: appBarColor),
+                        const SizedBox(width: 8),
+                        const Text("Redigera"),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'radera',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_forever, size: 18, color: Colors.red),
+                        SizedBox(width: 8),
+                        Text("Radera session", style: TextStyle(color: Colors.red)),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           );
