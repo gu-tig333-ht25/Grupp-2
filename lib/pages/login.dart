@@ -1,12 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:template/main.dart';
-import '/main.dart';
-import '/pages/signup.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-final _db = FirebaseFirestore.instance;
-final _auth = FirebaseAuth.instance;
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -109,7 +102,7 @@ class _LoginState extends State<Login> {
 }
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

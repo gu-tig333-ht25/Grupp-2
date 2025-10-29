@@ -8,9 +8,7 @@ import 'pages/signup.dart';
 import 'pages/login.dart';
 import 'views/mal_sida.dart';
 import 'package:provider/provider.dart';
-//import 'mal_provider.dart';
 import 'views/timer.dart';
-//import 'views/betyg.dart';
 import 'views/sessioner.dart';
 import 'views/resurser_view.dart';
 import 'calendar/calendar.dart';
@@ -134,7 +132,6 @@ class _HuvudNavigatorState extends State<HuvudNavigator> {
   final List<Widget> _sidor = const [
     StartSida(),
     CalendarPage(),
-    //ForumSida(),
   ];
 
   void _onItemTapped(int index) {
@@ -224,7 +221,7 @@ class StartSida extends StatelessWidget {
                             ),
                             const TextSpan(
                               text:
-                                  "Bok: Bamse och tjuvjakten\nLästid: 10 minuter",
+                                  "Bok: Knacka på\nLästid: 10 minuter",
                               style: TextStyle(fontSize: 14, color: Colors.white),
                             ),
                           ],
@@ -293,21 +290,3 @@ class StartSida extends StatelessWidget {
     );
   }
 }
-
-// KALENDER
-class KalenderSida extends StatelessWidget {
-  const KalenderSida({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Kalender"),
-        backgroundColor: const Color(0xFF8CA1DE),
-        foregroundColor: Colors.white,
-      ),
-      body: const Center(child: Text("Här kan kalendern ligga.")),
-    );
-  }
-}
-

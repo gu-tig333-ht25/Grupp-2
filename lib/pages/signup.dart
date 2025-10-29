@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../main.dart'; // kontrollera sökvägen
-import 'node_model.dart'; // 🔹 Importera Firestore-funktionerna
-
-final FirebaseAuth _auth = FirebaseAuth.instance;
+import '../main.dart'; 
+import 'node_model.dart'; 
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
