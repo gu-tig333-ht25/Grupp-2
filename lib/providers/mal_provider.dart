@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-// =================================================================
-// 1. Mal - Datamodellen (från Kod 2 med Firestore-stöd)
-// =================================================================
+// Mål datamodellen - representerar ett enkilt mål
 class Mal {
   String id;
   String titel;
@@ -22,21 +20,23 @@ class Mal {
     this.klar = false,
   });
 
-  // Veckonummer
+  // Beräknar vilket vecknummer målet tillhör
   int get vecka => datum != null
       ? ((datum!.difference(DateTime(datum!.year, 1, 1)).inDays) ~/ 7) + 1
       : 0;
 
+  //Konverterar Mål-objekt till Map för firestore
   Map<String, dynamic> toMap() {
     return {
       'titel': titel,
       'typ': typ,
       'anteckning': anteckning,
-      'datum': datum?.toIso8601String(),
+      'datum': datum?.toIso8601String(), //sparar data som sträng
       'klar': klar,
     };
   }
 
+  //Skapar ett Mål-objekt från en firestore map
   static Mal fromMap(Map<String, dynamic> data, String id) {
     return Mal(
       id: id,
@@ -49,8 +49,7 @@ class Mal {
   }
 }
 
-// 2. MalProvider - Provider/Service Layer (Kombinerad)
-
+//Målprovider - hanterar målens tillstånd
 class MalProvider with ChangeNotifier {
   final List<Mal> _malLista = [];
 
@@ -58,14 +57,14 @@ class MalProvider with ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  List<Mal> get malLista => _malLista;
+  List<Mal> get malLista => _malLista; //Getter för att läsa mållistan
 
-  // Firestore Laddning/CRUD 
-
+  // Laddar alla mål från firestore för den inloggade användaren
   Future<void> loadGoalsFromFirestore() async {
     final user = _auth.currentUser;
     if (user == null) return;
 
+    //Hämtar alla mål dokument från användarens sub-samling
     final snapshot = await _db
         .collection('users')
         .doc(user.uid)
@@ -79,6 +78,7 @@ class MalProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  //Skapar ett nytt mål och lägger till det lokalt och i firestore
   Future<void> laggTillMal(String titel,
       {required String typ, String anteckning = '', DateTime? datum}) async {
     final nu = DateTime.now();
@@ -104,11 +104,12 @@ class MalProvider with ChangeNotifier {
           .collection('goals')
           .doc();
 
-      nyttMal.id = ref.id; // Uppdatera ID efter att referensen skapats
-      await ref.set(nyttMal.toMap());
+      nyttMal.id = ref.id; 
+      await ref.set(nyttMal.toMap()); //Sparar målet med det nya id:et
     }
   }
 
+  //Tar bort ett mål lokalt och från firestore
   Future<void> taBortMal(int index) async {
     if (index < 0 || index >= _malLista.length) return;
 
@@ -130,16 +131,16 @@ class MalProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Växlar status på målet (klar/inte klar)
   Future<void> toggleKlar(int index) async {
     if (index < 0 || index >= _malLista.length) return;
 
     final mal = _malLista[index];
     mal.klar = !mal.klar;
 
-    // Uppdatera lokalt
     notifyListeners();
 
-    // Uppdatera i Firestore
+    // Uppdaterar klar fältet i Firestore
     final user = _auth.currentUser;
     if (user != null && mal.id.isNotEmpty) {
       final ref = _db
@@ -152,17 +153,42 @@ class MalProvider with ChangeNotifier {
     }
   }
 
+  //Updaterar titel och anteckning för ett mål
+  Future<void> uppdateraMalDetaljer(int index, String nyTitel, String nyAnteckning) async {
+    if (index < 0 || index >= _malLista.length) return;
+
+    final mal = _malLista[index];
+    
+    mal.titel = nyTitel;
+    mal.anteckning = nyAnteckning;
+
+    notifyListeners();
+
+    final user = _auth.currentUser;
+    if (user != null && mal.id.isNotEmpty) {
+      final ref = _db
+          .collection('users')
+          .doc(user.uid)
+          .collection('goals')
+          .doc(mal.id);
+
+      await ref.update({
+        'titel': nyTitel,
+        'anteckning': nyAnteckning,
+      });
+    }
+  }
+
   //Automatisk Statusuppdatering
 
-  // Hjälpfunktion för att beräkna veckonummer
+  // Hjälpfunktion för att beräkna veckonummer för att jämföra med dagsdatum
   int _veckaNummer(DateTime date) {
-    // Använder den mer robusta beräkningen från Kod 1's Mal.vecka
     final firstDayOfYear = DateTime(date.year, 1, 1);
     final daysPassed = date.difference(firstDayOfYear).inDays;
     return ((daysPassed + firstDayOfYear.weekday) / 7).ceil();
   }
 
-  // Automatisk uppdatering av målstatus baserat på dagens datum
+  // Automatisk uppdatering - flyttar veckomål till dagsmål när veckan är inne
   Future<void> uppdateraMalsStatus() async {
     final idag = DateTime.now();
     final veckaNu = _veckaNummer(idag);
@@ -178,7 +204,6 @@ class MalProvider with ChangeNotifier {
     final batch = _db.batch();
     final userGoalsRef = _db.collection('users').doc(user.uid).collection('goals');
 
-
     for (var mal in _malLista) {
       bool malUpdated = false;
 
@@ -191,7 +216,7 @@ class MalProvider with ChangeNotifier {
         }
       }
 
-      // Spara ändringar till Firestore
+      // Lägger till uppdatering till batchen om målet ändrades
       if (malUpdated && mal.id.isNotEmpty) {
         final ref = userGoalsRef.doc(mal.id);
         batch.update(ref, {'typ': mal.typ});
@@ -199,38 +224,12 @@ class MalProvider with ChangeNotifier {
     }
 
     if (hasChanged) {
-      await batch.commit();
+      await batch.commit(); // Skickar alla uppdateringar till Firestore samtidigt
       notifyListeners();
     }
   }
 
-  Future<void> uppdateraMalDetaljer(int index, String nyTitel, String nyAnteckning) async {
-    if (index < 0 || index >= _malLista.length) return;
-
-    final mal = _malLista[index];
-    
-    // 1. Uppdatera lokalt
-    mal.titel = nyTitel;
-    mal.anteckning = nyAnteckning;
-
-    // 2. Notifiera lyssnare
-    notifyListeners();
-
-    // 3. Uppdatera i Firestore
-    final user = _auth.currentUser;
-    if (user != null && mal.id.isNotEmpty) {
-      final ref = _db
-          .collection('users')
-          .doc(user.uid)
-          .collection('goals')
-          .doc(mal.id);
-
-      await ref.update({
-        'titel': nyTitel,
-        'anteckning': nyAnteckning,
-      });
-    }
-  }
+  //Rensar lokala mål-data (används vid utloggning).
   void clearData() {
     _malLista.clear();
     notifyListeners();
