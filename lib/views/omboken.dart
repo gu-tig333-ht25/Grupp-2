@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+/* Sida som visar information om en barnbok ex 'Knacka på'
+Här finns inbäddat youtubeklipp och exempel på PEER metoder för högläsning */
+
 class OmBokenSida extends StatefulWidget {
   const OmBokenSida({super.key});
 
@@ -12,7 +15,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
   //YouTube-kontrollern 
   late YoutubePlayerController _youtubeController;
 
-  //YouTube video ID
+  // YouTube video ID
   final String _videoId = '8cJZ9L29uLM'; 
 
   @override
@@ -27,7 +30,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
     );
   }
 
-  //Frigör resurserna när sidan stängs
+  // Frigör resurserna när sidan stängs
   @override
   void dispose() {
     _youtubeController.dispose();
@@ -47,6 +50,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Titel tex P = promta
           Text(
             title,
             style: TextStyle(
@@ -56,6 +60,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
             ),
           ),
           const SizedBox(height: 4),
+          // Beskrivande tex / exempel
           Text(
             description,
             style: TextStyle(
@@ -73,11 +78,15 @@ class _OmBokenSidaState extends State<OmBokenSida> {
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 252, 252, 252),  //Ändrar bakgrunden
       appBar: AppBar(
-        title: const Text("Om boken"), //titeln i appbaren
+        title: const Text("Om boken"), // Titeln i appbaren
         centerTitle: true,
-        backgroundColor: Color.fromARGB(255, 45, 76, 114), //Ändrar färgen på appbaren
-        foregroundColor: Color.fromARGB(255, 252, 252, 252), //Ändrar färgen på texten i appbaren
+        backgroundColor: 
+          Color.fromARGB(255, 45, 76, 114), // Ändrar färgen på appbaren
+        foregroundColor: 
+          Color.fromARGB(255, 252, 252, 252), // Ändrar färgen på texten i appbaren
       ),
+
+      // Huvudinnehåll, skollbar för att få plats med all text
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -91,7 +100,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
             ),
             const SizedBox(height: 16),
 
-            //Youtube klippet
+            // Youtube klippet inbäddat
             YoutubePlayer(
               controller: _youtubeController,
               showVideoProgressIndicator: true,
@@ -119,6 +128,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
             ),
             const SizedBox(height: 10),
 
+            // Exempel på PEER steg
             _buildPeerSection(
               "P: Prompta (Be barnet svara)",
               "Uppmana barnet till att svara på en fråga relaterad till boken eller sidan, exempelvis 'Vem tror du bor bakom den röda dörren?'",
@@ -140,6 +150,7 @@ class _OmBokenSidaState extends State<OmBokenSida> {
               Color.fromARGB(255, 25, 42, 62),
             ),
 
+            // Avslutande text
             const SizedBox(height: 20),
             const Text(
               "Genom att följa PEER-stegen hjälper du ditt barn att utveckla sitt ordförråd och sin narrativa förmåga.",

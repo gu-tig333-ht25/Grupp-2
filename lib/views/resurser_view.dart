@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+/* Sida som innehåller resurser, informationsvideor och PEER sekvenser
+Användaren kan expandera sektioner för att läsa mer eller titta på klipp */
+
 class ResurserSida extends StatefulWidget {
   const ResurserSida({super.key});
 
@@ -9,6 +12,7 @@ class ResurserSida extends StatefulWidget {
 }
 
 class _ResurserSidaState extends State<ResurserSida> {
+  // Hjälpmetod som visar punktlisor med '•'
   Widget _bullet(String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
@@ -21,6 +25,8 @@ class _ResurserSidaState extends State<ResurserSida> {
       ),
     );
   }
+  
+  // Variabler för att hålla koll på vilka sektioner som är expanderade
   bool _infoExpanded = false;
   bool _videoExpanded = false;
   bool _peerExpanded = false;
@@ -28,19 +34,21 @@ class _ResurserSidaState extends State<ResurserSida> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 45, 76, 114),  //Ändrar bakgrunden
+      backgroundColor: Color.fromARGB(255, 45, 76, 114),  // Ändrar bakgrunden
       appBar: AppBar(
-        title: const Text("Resurser & videor"), //Titel på sidan
+        title: const Text("Resurser & videor"), // Titel på sidan
         centerTitle: true,
         backgroundColor: Color.fromARGB(255, 45, 76, 114),
         foregroundColor: Colors.white,
       ),
+
+      // Huvudinnehållet
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
 
-            //"För-info" text sektion-----------------------------------
+            // "För-info" text sektion
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
@@ -65,18 +73,18 @@ class _ResurserSidaState extends State<ResurserSida> {
               ),
             ),
 
-            //Information och tips sektion-----------------------------------
+            // Information och tips sektion
             Card(
               color: Colors.white,
               elevation: 2,
               child: Column(
                 children: [
-                  //Knapp för information och tips-----------------------------------
+                  // Knapp för expandera sektionen information och tips
                   InkWell(
                     onTap: () {
                       setState(() {
                         _infoExpanded = !_infoExpanded;
-                        // Stäng de andra om denna öppnas
+                        // Stäng de andra sektionerna om denna öppnas
                         if (_infoExpanded) {
                           _videoExpanded = false;
                           _peerExpanded = false;
@@ -115,7 +123,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                     ),
                   ),
 
-                  //Innehåll för information tabben-----------------------------------
+                  // Innehåll för information tabben när den expanderas
                   if (_infoExpanded)
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -134,7 +142,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          //innehåll
+                          // Innehåll
                           Text(
                             "Alla barn börjar kommunicera tidigt genom skrik, leenden och gråt. Så småningom följer joller, babbel och de första orden. Språkutvecklingen följer oftast samma mönster, men takten varierar. Vissa barn pratar tidigt, andra väntar längre innan orden kommer, och en del har svårt med uttal trots att de pratar mycket. Som förälder kan man lätt bli orolig och jämföra med andra barn. Oftast kommer språket ikapp av sig själv, men du kan stötta utvecklingen hemma och ibland kan extra stöd behövas.",
                             style: TextStyle(fontSize: 14)
@@ -142,7 +150,7 @@ class _ResurserSidaState extends State<ResurserSida> {
 
 
                           const SizedBox(height: 16),
-                          //Rubrik
+                          // Rubrik
                           Text(
                             "När börjar barn prata?",
                             style: const TextStyle(
@@ -152,7 +160,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          //punktlista
+                          // Punktlista med utvecklingsnivåer
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -170,7 +178,7 @@ class _ResurserSidaState extends State<ResurserSida> {
 
 
                           const SizedBox(height: 16),
-                          //Rubrik
+                          // Rubrik
                           Text(
                             "Tips för att stötta ditt barns språkutveckling",
                             style: const TextStyle(
@@ -181,7 +189,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                           ),
                           const SizedBox(height: 4),
 
-                          //Fyra tips som punktlista
+                          // Fyra tips som punktlista
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -203,13 +211,13 @@ class _ResurserSidaState extends State<ResurserSida> {
 
 
 
-            //Informationsvideos sektionen -----------------------------------
+            // Informationsvideos sektionen
             Card(
               color: Colors.white,
               elevation: 2,
               child: Column(
                 children: [
-                  //Knapp för videos -----------------------------------
+                  //Knapp för videos
                   InkWell(
                     onTap: () {
                       setState(() {
@@ -253,7 +261,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                     ),
                   ),
 
-                  //Innehåll för videos tabben-----------------------------------
+                  // Innehåll för videos tabben
                   if (_videoExpanded)
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -265,37 +273,37 @@ class _ResurserSidaState extends State<ResurserSida> {
                           SizedBox(height: 8), //Mellanrum mellan titel och video
                           YoutubePlayer(
                             controller: YoutubePlayerController(
-                              initialVideoId: 'tpb_w4qXrB8', //youTube video-ID
+                              initialVideoId: 'tpb_w4qXrB8', // YouTube video-ID
                               flags: YoutubePlayerFlags(
-                                autoPlay: false, //Klippen spelas inte automatiskt
+                                autoPlay: false, // Klippen spelas inte automatiskt
                               ),
                             ),
-                            showVideoProgressIndicator: true, //När videon laddar visas en detta
+                            showVideoProgressIndicator: true, // När videon laddar visas en detta
                           ),
-                          SizedBox(height: 24), //Mellanrum mellan de olika videorna 
+                          SizedBox(height: 24), // Mellanrum mellan de olika videorna 
 
-                          //Video 2 titel och spelare
+                          // Video 2 titel och spelare
                           Text("Exempel på lässtund", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 8), //Mellanrum mellan titel och video
+                          SizedBox(height: 8), // Mellanrum mellan titel och video
                           YoutubePlayer(
                             controller: YoutubePlayerController(
-                              initialVideoId: '-708YcjfVh4', //YouTube video-ID
+                              initialVideoId: '-708YcjfVh4', // YouTube video-ID
                               flags: YoutubePlayerFlags(
-                                autoPlay: false, //Klippen spelas inte automatiskt
+                                autoPlay: false, // Klippen spelas inte automatiskt
                               ),
                             ),
                             showVideoProgressIndicator: true,
                           ),
-                          SizedBox(height: 24), //Mellanrum mellan de olika videorna
+                          SizedBox(height: 24), // Mellanrum mellan de olika videorna
 
-                          //Video 3 titel och spelare
+                          // Video 3 titel och spelare
                           Text("Tips för dialogisk läsning", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 8), //Mellanrum mellan titel och video
+                          SizedBox(height: 8), // Mellanrum mellan titel och video
                           YoutubePlayer(
                             controller: YoutubePlayerController(
-                              initialVideoId: 'F2Y6hg4Twi4', //YouTube video-ID
+                              initialVideoId: 'F2Y6hg4Twi4', // YouTube video-ID
                               flags: YoutubePlayerFlags(
-                                autoPlay: false, //Klippen spelas inte automatiskt
+                                autoPlay: false, // Klippen spelas inte automatiskt
                               ),
                             ),
                             showVideoProgressIndicator: true,
@@ -308,18 +316,18 @@ class _ResurserSidaState extends State<ResurserSida> {
             ),
             const SizedBox(height: 16),
 
-            //PEER-sekvens sektion -----------------------------------
+            // PEER-sekvens sektion
             Card(
               color: Colors.white,
               elevation: 2,
               child: Column(
                 children: [
-                  //Knapp för PEERsekvens -----------------------------------
+                  // Knapp för PEERsekvens
                   InkWell(
                     onTap: () {
                       setState(() {
                         _peerExpanded = !_peerExpanded;
-                        //Stäng de andra om denna öppnas
+                        // Stäng de andra om denna öppnas
                         if (_peerExpanded) {
                           _infoExpanded = false;
                           _videoExpanded = false;
@@ -358,7 +366,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                     ),
                   ),
 
-                  //Innehåll för PEER sekvens -----------------------------------
+                  // Innehåll för PEER sekvens
                   if (_peerExpanded)
                     Container(
                       padding: const EdgeInsets.all(16),
