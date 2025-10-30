@@ -22,7 +22,7 @@ class TimerSida extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Timer"),
         centerTitle: true,
-        backgroundColor: const Color(0xFF8CA1DE),
+        backgroundColor: Color.fromARGB(255, 45, 76, 114),
         foregroundColor: Colors.white,
       ),
       body: Center(
@@ -41,7 +41,7 @@ class TimerSida extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 64,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF8CA1DE),
+                  color: Color.fromARGB(255, 61, 61, 61),
                 ),
               ),
               const SizedBox(height: 40),
@@ -57,8 +57,8 @@ class TimerSida extends StatelessWidget {
                       style: buttonTextStyle),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: timerProvider.isRunning
-                        ? Colors.orange
-                        : const Color(0xFF8CA1DE),
+                        ? Color.fromARGB(255, 140, 161, 222)
+                        : const Color.fromARGB(255, 45, 76, 114),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),

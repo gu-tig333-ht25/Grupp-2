@@ -30,8 +30,8 @@ class DagensSessionSida extends StatelessWidget {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const TimerSida()));
               },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: const Text("⏱ Starta timer",
+              style: ElevatedButton.styleFrom(backgroundColor: Color.fromARGB(255, 140, 161, 222)),
+              child: const Text("Starta timer",
                   style: TextStyle(color: Colors.white)),
             ),
             
@@ -52,7 +52,7 @@ class DagensSessionSida extends StatelessWidget {
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
+              style: ElevatedButton.styleFrom(backgroundColor: Color.fromARGB(255, 230, 206, 74)),
               child: const Text("⭐ Betygsätt dagens session",
                   style: TextStyle(color: Colors.white)),
             ),

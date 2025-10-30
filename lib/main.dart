@@ -57,9 +57,9 @@ class MyApp extends StatelessWidget {
         colorScheme:
             ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 64, 104, 222)),
         useMaterial3: true,
-        scaffoldBackgroundColor: const Color.fromARGB(255, 252, 222, 133),
+        scaffoldBackgroundColor: const Color.fromARGB(255, 251, 252, 252),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF8CA1DE), 
+          backgroundColor: Color.fromARGB(255, 45, 76, 114), 
           foregroundColor: Colors.white,
         ),
       ),
@@ -146,9 +146,9 @@ class _HuvudNavigatorState extends State<HuvudNavigator> {
       body: _sidor[_valdIndex],
       //Bottomnavigation-fältet
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color(0xFF8CA1DE),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white70,
+        backgroundColor: const Color.fromARGB(255, 194, 194, 194),
+        selectedItemColor: const Color.fromARGB(255, 227, 228, 228),
+        unselectedItemColor: const Color.fromARGB(255, 98, 98, 98),
         currentIndex: _valdIndex,
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
@@ -191,6 +191,7 @@ class StartSida extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Startsida'),
+        centerTitle: true,
         actions: [
           TextButton(
             onPressed: () => _loggaUt(context),
@@ -210,7 +211,7 @@ class StartSida extends StatelessWidget {
               // Idag-ruta med starta session-knapp
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF8CA1DE),
+                  color: Color.fromARGB(255, 45, 76, 114),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 padding: const EdgeInsets.all(16),
@@ -243,7 +244,7 @@ class StartSida extends StatelessWidget {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFF8CA1DE),
+                          foregroundColor: const Color.fromARGB(255, 96, 96, 96),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -269,13 +270,13 @@ class StartSida extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Navigeringsknappar till appens övriga vyer
-              _buildNavButton(context, "🎯 Mål", const MalSida()),
+              _buildNavButton(context, "Mål", const MalSida()),
               const SizedBox(height: 16),
-              _buildNavButton(context, "⭐ Sessioner", const SessionerSida()),
+              _buildNavButton(context, "Sessioner", const SessionerSida()),
               const SizedBox(height: 16),
-              _buildNavButton(context, "📖 Om boken", const OmBokenSida()),
+              _buildNavButton(context, "Om boken", const OmBokenSida()),
               const SizedBox(height: 16),
-              _buildNavButton(context, "🎥 Resurser & videor", const ResurserSida()),
+              _buildNavButton(context, "Resurser & videor", const ResurserSida()),
             ],
           ),
         ),

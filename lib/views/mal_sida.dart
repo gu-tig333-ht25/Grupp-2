@@ -51,6 +51,7 @@ void initState() {
       backgroundColor: scaffoldBgColor,
       appBar: AppBar(
         title: Text(_getTitel()), 
+        centerTitle: true,
         backgroundColor: appBarColor,
         foregroundColor: Theme.of(context).appBarTheme.foregroundColor,
         
@@ -139,7 +140,7 @@ void initState() {
             MaterialPageRoute(builder: (_) => const SkapaMalSida()),
           );
         },
-        label: const Text("Lägg till mål"),
+        label: const Text("Lägg till mål", style: TextStyle(color: Colors.white)),
         icon: const Icon(Icons.add, color: Colors.white),
       ),
     );

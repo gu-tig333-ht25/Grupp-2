@@ -16,6 +16,7 @@ class SessionerSida extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Sessioner"),
+        centerTitle: true,
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
