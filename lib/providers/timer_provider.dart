@@ -31,10 +31,11 @@ class TimerProvider extends ChangeNotifier {
       _timer?.cancel();
       _isRunning = false;
 
-      //Om över 10 minuter, visa dialogen
+      //Om över 10 minuter, visa dialogen om du pausar
       if (_seconds >= 600) {
         _showSessionSlutDialog(context);
       }
+
     } else {
       //Starta timern
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {

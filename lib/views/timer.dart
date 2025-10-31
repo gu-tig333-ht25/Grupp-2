@@ -8,7 +8,7 @@ class TimerSida extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Använd Provider.of för att lyssna på ändringar från TimerProvider
+    //Lyssna på TimerProvider för att uppdatera klockan varje sekund
     final timerProvider = Provider.of<TimerProvider>(context);
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -50,6 +50,7 @@ class TimerSida extends StatelessWidget {
               SizedBox(
                 width: buttonWidth,
                 child: ElevatedButton.icon(
+                  //Väljer ikon och text baserat på isRunning
                   icon: Icon(timerProvider.isRunning
                       ? Icons.pause
                       : Icons.play_arrow),
@@ -73,7 +74,7 @@ class TimerSida extends StatelessWidget {
               SizedBox(
                 width: buttonWidth,
                 child: ElevatedButton(
-                  onPressed: timerProvider.resetTimer,
+                  onPressed: timerProvider.resetTimer, //anropar logiken i provider
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.redAccent,
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -86,7 +87,7 @@ class TimerSida extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Klar
+              // Klar (avslutar sessionen)
               SizedBox(
                 width: buttonWidth,
                 child: ElevatedButton(
