@@ -12,6 +12,38 @@ class ResurserSida extends StatefulWidget {
 }
 
 class _ResurserSidaState extends State<ResurserSida> {
+  //Deklarerar kontrollanterna för youtube videorna
+  late YoutubePlayerController _controller1;
+  late YoutubePlayerController _controller2;
+  late YoutubePlayerController _controller3;
+
+  //Initialisera kontrollanterna i initState()
+  @override
+  void initState() {
+    super.initState();
+    _controller1 = YoutubePlayerController(
+      initialVideoId: 'tpb_w4qXrB8', // Video 1 ID: Introduktion till dialogisk läsning
+      flags: const YoutubePlayerFlags(autoPlay: false),
+    );
+    _controller2 = YoutubePlayerController(
+      initialVideoId: '-708YcjfVh4', // Video 2 ID: Exempel på lässtund
+      flags: const YoutubePlayerFlags(autoPlay: false),
+    );
+    _controller3 = YoutubePlayerController(
+      initialVideoId: 'F2Y6hg4Twi4', // Video 3 ID: Tips för dialogisk läsning
+      flags: const YoutubePlayerFlags(autoPlay: false),
+    );
+  }
+
+  //Frigör resurserna i dispose
+  @override
+  void dispose() {
+    _controller1.dispose();
+    _controller2.dispose();
+    _controller3.dispose();
+    super.dispose();
+  }
+  
   // Hjälpmetod som visar punktlisor med '•'
   Widget _bullet(String text) {
     return Padding(
@@ -34,11 +66,11 @@ class _ResurserSidaState extends State<ResurserSida> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 45, 76, 114),  // Ändrar bakgrunden
+      backgroundColor: const Color.fromARGB(255, 45, 76, 114), // Ändrar bakgrunden
       appBar: AppBar(
         title: const Text("Resurser & videor"), // Titel på sidan
         centerTitle: true,
-        backgroundColor: Color.fromARGB(255, 45, 76, 114),
+        backgroundColor: const Color.fromARGB(255, 45, 76, 114),
         foregroundColor: Colors.white,
       ),
 
@@ -84,7 +116,6 @@ class _ResurserSidaState extends State<ResurserSida> {
                     onTap: () {
                       setState(() {
                         _infoExpanded = !_infoExpanded;
-                        // Stäng de andra sektionerna om denna öppnas
                         if (_infoExpanded) {
                           _videoExpanded = false;
                           _peerExpanded = false;
@@ -116,7 +147,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                           ),
                           Icon(
                             _infoExpanded ? Icons.expand_less : Icons.expand_more,
-                            color: Color.fromARGB(255, 40, 77, 122),
+                            color: const Color.fromARGB(255, 40, 77, 122),
                           ),
                         ],
                       ),
@@ -130,12 +161,10 @@ class _ResurserSidaState extends State<ResurserSida> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-
-                          // Rubrik
                           const SizedBox(height: 16),
-                          Text(
+                          const Text(
                             "Språket utvecklas i sin egen takt",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: Color.fromARGB(255, 40, 77, 122),
@@ -143,45 +172,42 @@ class _ResurserSidaState extends State<ResurserSida> {
                           ),
                           const SizedBox(height: 4),
                           // Innehåll
-                          Text(
+                          const Text(
                             "Alla barn börjar kommunicera tidigt genom skrik, leenden och gråt. Så småningom följer joller, babbel och de första orden. Språkutvecklingen följer oftast samma mönster, men takten varierar. Vissa barn pratar tidigt, andra väntar längre innan orden kommer, och en del har svårt med uttal trots att de pratar mycket. Som förälder kan man lätt bli orolig och jämföra med andra barn. Oftast kommer språket ikapp av sig själv, men du kan stötta utvecklingen hemma och ibland kan extra stöd behövas.",
                             style: TextStyle(fontSize: 14)
                           ),
 
 
                           const SizedBox(height: 16),
-                          // Rubrik
-                          Text(
+                          const Text(
                             "När börjar barn prata?",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: Color.fromARGB(255, 230, 206, 74),
                             ),
                           ),
                           const SizedBox(height: 4),
-                          // Punktlista med utvecklingsnivåer
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Barn utvecklar språket i olika takt, och variation är helt normalt. Generellt brukar man säga att:", style: TextStyle(fontSize: 14)),
-                              SizedBox(height: 8),
+                              const Text("Barn utvecklar språket i olika takt, och variation är helt normalt. Generellt brukar man säga att:", style: TextStyle(fontSize: 14)),
+                              const SizedBox(height: 8),
                               _bullet("Vid 1 år - barnet använder enstaka ord"),
                               _bullet("Vid 2 år - barnet sätter ihop två ord"),
                               _bullet("Vid 3 år - familjen förstår vad barnet säger"),
                               _bullet("Vid 4 år - även andra kan förstå barnet"),
-                              SizedBox(height: 8),
-                              Text("Det viktiga är att barnet försöker kommunicera med ord, gester eller ljud. Om intresset för att prata eller samspela verkar saknas kan det vara bra att söka stöd. ", style: TextStyle(fontSize: 14)),
-                              Text("Om ett barn är sent i språkutvecklingen får man ofta träffa en logoped. Logopeden utreder och behandlar olika tal- och språksvårigheter, oavsett orsak. Genom lek och övningar hjälper logopeden barnet att träna uttal, förstå ord och våga använda språket mer aktivt.", style: TextStyle(fontSize: 14)),
+                              const SizedBox(height: 8),
+                              const Text("Det viktiga är att barnet försöker kommunicera med ord, gester eller ljud. Om intresset för att prata eller samspela verkar saknas kan det vara bra att söka stöd. ", style: TextStyle(fontSize: 14)),
+                              const Text("Om ett barn är sent i språkutvecklingen får man ofta träffa en logoped. Logopeden utreder och behandlar olika tal- och språksvårigheter, oavsett orsak. Genom lek och övningar hjälper logopeden barnet att träna uttal, förstå ord och våga använda språket mer aktivt.", style: TextStyle(fontSize: 14)),
                             ],
                           ),
 
 
                           const SizedBox(height: 16),
-                          // Rubrik
-                          Text(
+                          const Text(
                             "Tips för att stötta ditt barns språkutveckling",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: Color.fromARGB(255, 140, 161, 222),
@@ -189,7 +215,6 @@ class _ResurserSidaState extends State<ResurserSida> {
                           ),
                           const SizedBox(height: 4),
 
-                          // Fyra tips som punktlista
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -209,8 +234,6 @@ class _ResurserSidaState extends State<ResurserSida> {
             const SizedBox(height: 16),
 
 
-
-
             // Informationsvideos sektionen
             Card(
               color: Colors.white,
@@ -222,7 +245,6 @@ class _ResurserSidaState extends State<ResurserSida> {
                     onTap: () {
                       setState(() {
                         _videoExpanded = !_videoExpanded;
-                        // Stäng de andra om denna öppnas
                         if (_videoExpanded) {
                           _infoExpanded = false;
                           _peerExpanded = false;
@@ -254,7 +276,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                           ),
                           Icon(
                             _videoExpanded ? Icons.expand_less : Icons.expand_more,
-                            color: Color.fromARGB(255, 40, 77, 122),
+                            color: const Color.fromARGB(255, 40, 77, 122),
                           ),
                         ],
                       ),
@@ -269,43 +291,28 @@ class _ResurserSidaState extends State<ResurserSida> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Video 1 titel och spelare
-                          Text("Introduktion till dialogisk läsning", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 8), //Mellanrum mellan titel och video
+                          const Text("Introduktion till dialogisk läsning", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
                           YoutubePlayer(
-                            controller: YoutubePlayerController(
-                              initialVideoId: 'tpb_w4qXrB8', // YouTube video-ID
-                              flags: YoutubePlayerFlags(
-                                autoPlay: false, // Klippen spelas inte automatiskt
-                              ),
-                            ),
-                            showVideoProgressIndicator: true, // När videon laddar visas en detta
+                            controller: _controller1, //Controller 1 används här
+                            showVideoProgressIndicator: true, 
                           ),
-                          SizedBox(height: 24), // Mellanrum mellan de olika videorna 
+                          const SizedBox(height: 24),
 
                           // Video 2 titel och spelare
-                          Text("Exempel på lässtund", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 8), // Mellanrum mellan titel och video
+                          const Text("Exempel på lässtund", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
                           YoutubePlayer(
-                            controller: YoutubePlayerController(
-                              initialVideoId: '-708YcjfVh4', // YouTube video-ID
-                              flags: YoutubePlayerFlags(
-                                autoPlay: false, // Klippen spelas inte automatiskt
-                              ),
-                            ),
+                            controller: _controller2, //Controller 2 används här
                             showVideoProgressIndicator: true,
                           ),
-                          SizedBox(height: 24), // Mellanrum mellan de olika videorna
+                          const SizedBox(height: 24),
 
                           // Video 3 titel och spelare
-                          Text("Tips för dialogisk läsning", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 8), // Mellanrum mellan titel och video
+                          const Text("Tips för dialogisk läsning", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
                           YoutubePlayer(
-                            controller: YoutubePlayerController(
-                              initialVideoId: 'F2Y6hg4Twi4', // YouTube video-ID
-                              flags: YoutubePlayerFlags(
-                                autoPlay: false, // Klippen spelas inte automatiskt
-                              ),
-                            ),
+                            controller: _controller3, //Controller 3 används här
                             showVideoProgressIndicator: true,
                           ),
                         ],
@@ -327,7 +334,6 @@ class _ResurserSidaState extends State<ResurserSida> {
                     onTap: () {
                       setState(() {
                         _peerExpanded = !_peerExpanded;
-                        // Stäng de andra om denna öppnas
                         if (_peerExpanded) {
                           _infoExpanded = false;
                           _videoExpanded = false;
@@ -359,7 +365,7 @@ class _ResurserSidaState extends State<ResurserSida> {
                           ),
                           Icon(
                             _peerExpanded ? Icons.expand_less : Icons.expand_more,
-                            color: Color.fromARGB(255, 40, 77, 122),
+                            color: const Color.fromARGB(255, 40, 77, 122),
                           ),
                         ],
                       ),
@@ -383,6 +389,8 @@ class _ResurserSidaState extends State<ResurserSida> {
                             ),
                           ),
                           const SizedBox(height: 8),
+
+                          // Innehåll
                           const Text(
                             "PEER är en kort samtalssekvens mellan barnet och den vuxna. Den används när man delar en bok tillsammans, efter att ni redan har läst igenom boken minst en gång. Metoden kan användas på nästan varje sida i boken.",
                             style: TextStyle(fontSize: 14),
@@ -409,5 +417,4 @@ class _ResurserSidaState extends State<ResurserSida> {
       ),
     );
   }
-
 }
